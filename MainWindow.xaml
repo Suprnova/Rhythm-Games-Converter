@@ -33,6 +33,11 @@
                     <TextBlock Name="stepsource" FontSize="14">Stepmania</TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock Name="beatsabersource" FontSize="14">BeatSaber</TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Searched game:" HorizontalAlignment="Left" Margin="17,10,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="108" Grid.Row="1"/>
         <ComboBox HorizontalAlignment="Left" Margin="134,10,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="search" SelectionChanged="SearchChanged" Grid.ColumnSpan="2" Grid.Row="1">

@@ -175,51 +175,6 @@ namespace rhythm_games_converter
                 results.Text = MaiMaiMatching(titles, titlesUni);
             }
         }
-
-        private void Search_Click(object sender, RoutedEventArgs e)
-        {
-            if (source.SelectedIndex == 1 && search.SelectedIndex == 1)
-            {
-                MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
-                return;
-            }
-            else if (File.Exists(dir.Text))
-            {
-                MessageBox.Show("The directory provided does not refer to a folder.", "Error");
-                return;
-            }
-            else if (Directory.Exists(dir.Text))
-            {               
-                if (source.SelectedIndex == 0) 
-                {
-                    SourceOsu();
-                }
-                else if (source.SelectedIndex == 1) 
-                {
-                    SourceClone();
-                }
-                else 
-                {
-                    SourceStep(); ;
-                }
-            }
-            else
-            {
-                MessageBox.Show("The directory provided is invalid.", "Error");
-                return;
-            }
-        }
-        public static string ScrapePage(string webpage)
-        {
-            string page = string.Empty;
-            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
-            HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
-            using (StreamReader sr = new StreamReader(res.GetResponseStream()))
-            {
-                page = sr.ReadToEnd();
-            }
-            return page;
-        }
         private void SourceStep()
         {
             var titles = StepFiles(dir.Text);
@@ -279,14 +234,121 @@ namespace rhythm_games_converter
                 results.Text = MaiMaiMatching(titles, null);
             }
         }
+        private void SourceBeatSaber()
+        {
+            var titles = BeatSaberFiles(dir.Text);
+            foreach (string title in titles)
+            {
+                if (!String.IsNullOrWhiteSpace(title))
+                {
+                    sourceSongs.Items.Add(title);
+                }
+            }
+            if (search.SelectedIndex == 0)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = BEMANIMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 1)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+
+                Globals.links = CloneMatching(titles, null, null);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.linksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+
+                }
+            }
+            else if (search.SelectedIndex == 2)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = MaiMaiMatching(titles, null);
+            }
+        }
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            if (source.SelectedIndex == 1 && search.SelectedIndex == 1)
+            {
+                MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
+                return;
+            }
+            else if (File.Exists(dir.Text))
+            {
+                MessageBox.Show("The directory provided does not refer to a folder.", "Error");
+                return;
+            }
+            else if (Directory.Exists(dir.Text))
+            {               
+                if (source.SelectedIndex == 0) 
+                {
+                    SourceOsu();
+                }
+                else if (source.SelectedIndex == 1) 
+                {
+                    SourceClone();
+                }
+                else if (source.SelectedIndex == 2)
+                {
+                    SourceStep(); 
+                }
+                else if (source.SelectedIndex == 3)
+                {
+                    SourceBeatSaber();
+                }
+            }
+            else
+            {
+                MessageBox.Show("The directory provided is invalid.", "Error");
+                return;
+            }
+        }
+        public static string ScrapePage(string webpage)
+        {
+            string page = string.Empty;
+            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
+            HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
+            using (StreamReader sr = new StreamReader(res.GetResponseStream()))
+            {
+                page = sr.ReadToEnd();
+            }
+            return page;
+        }
         public List<string> CloneFiles(string directory)
         {
-            string[] files = Directory.GetFiles(directory, "*.ini", SearchOption.AllDirectories);
-            var titles = new List<string>();
-            string result = string.Empty;
             App.Current.MainWindow.Hide();
             AllocConsole();
             Console.WriteLine("Indexing Clone Hero files...");
+            string[] files = Directory.GetFiles(directory, "*.ini", SearchOption.AllDirectories);
+            var titles = new List<string>();
+            string result = string.Empty;
             foreach (string file in files)
             {
                 var lines = File.ReadAllLines(file);
@@ -309,8 +371,43 @@ namespace rhythm_games_converter
             }
             return titles;
         }
+        public List<string> BeatSaberFiles(string directory)
+        {
+            App.Current.MainWindow.Hide();
+            AllocConsole();
+            Console.WriteLine("Indexing BeatSaber files...");
+            string[] files = Directory.GetFiles(directory, "info.dat", SearchOption.AllDirectories);
+            var titles = new List<string>();
+            string result = string.Empty;
+            foreach (string file in files)
+            {
+                var lines = File.ReadAllLines(file);
+                foreach (var line in lines)
+                {
+                    Console.WriteLine(line);
+                    if (line.Contains("\"_songName\":")) // title saved
+                    {
+                        var text = line.Replace("\"_songName\": ", "");
+                        var text2 = text.Replace("\"", "");
+                        result = text2.Trim(',');
+                        result = result.Trim();
+                        if (!titles.Contains(result))
+                        {
+                            titles.Add(result);
+
+                            //goto nextfile;\
+                            break;
+                        }
+                    }
+                }
+            }
+            return titles;
+        }
         public static (List<string> titles, List<string> titlesUni, List<string> artists) OsuFiles(string directory)
         {
+            App.Current.MainWindow.Hide();
+            AllocConsole();
+            Console.WriteLine("Indexing osu! files...");
             string[] files = Directory.GetFiles(directory, "*.osu", SearchOption.AllDirectories);
             var titles = new List<string>();
             var titlesUni = new List<string>();
@@ -318,9 +415,6 @@ namespace rhythm_games_converter
             string result = String.Empty;
             string resultUni = String.Empty;
             string artist = String.Empty;
-            App.Current.MainWindow.Hide();
-            AllocConsole();
-            Console.WriteLine("Indexing osu! files...");
             foreach (string file in files)
             {
                 var lines = File.ReadAllLines(file);
@@ -393,12 +487,12 @@ namespace rhythm_games_converter
         }
         public List<string> StepFiles(string directory)
         {
-            string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
-            var titles = new List<string>();
-            string result = string.Empty;
             App.Current.MainWindow.Hide();
             AllocConsole();
             Console.WriteLine("Indexing Stepmania files...");
+            string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
+            var titles = new List<string>();
+            string result = string.Empty;
             foreach (string file in files)
             {
                 var lines = File.ReadAllLines(file);
@@ -542,7 +636,7 @@ namespace rhythm_games_converter
                 {
                     if (IIDXPage.Contains(songBracketUnicode) || IIDXPage2.Contains(songBracketUnicode))
                     {
-                        matchesIIDX.Add(titleUnicode + " - (" + title);
+                        matchesIIDX.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (pmPage.Contains(songBracket) || pmPage2.Contains(songBracket))
@@ -554,7 +648,7 @@ namespace rhythm_games_converter
                 {
                     if (pmPage.Contains(songBracketUnicode) || pmPage2.Contains(songBracketUnicode))
                     {
-                        matchesPM.Add(titleUnicode + " - (" + title);
+                        matchesPM.Add(titleUnicode + " - (" + title + ")");
 
                     }
                 }
@@ -567,7 +661,7 @@ namespace rhythm_games_converter
                 {
                     if (DDRPage.Contains(songBracketUnicode) || DDRPage2.Contains(songBracketUnicode))
                     {
-                        matchesDDR.Add(titleUnicode + " - (" + title);
+                        matchesDDR.Add(titleUnicode + " - (" + title + ")");
 
                     }
                 }
@@ -580,7 +674,7 @@ namespace rhythm_games_converter
                 {
                     if (GDPage.Contains(songBracketUnicode) || GDPage2.Contains(songBracketUnicode) || GDPage2.Contains(songBracket))
                     {
-                        matchesGD.Add(titleUnicode + " - (" + title);
+                        matchesGD.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (jubeatPage.Contains(songBracket) || jubeatPage2.Contains(songBracket))
@@ -591,7 +685,7 @@ namespace rhythm_games_converter
                 {
                     if (jubeatPage.Contains(songBracketUnicode) || jubeatPage2.Contains(songBracketUnicode))
                     {
-                        matchesjubeat.Add(titleUnicode + " - (" + title);
+                        matchesjubeat.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (reflectPage.Contains(songBracket) || reflectPage2.Contains(songBracket))
@@ -602,7 +696,7 @@ namespace rhythm_games_converter
                 {
                     if (reflectPage.Contains(songBracketUnicode) || reflectPage2.Contains(songBracketUnicode))
                     {
-                        matchesreflect.Add(titleUnicode + " - (" + title);
+                        matchesreflect.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (SDVXPage.Contains(songBracket) || SDVXPage2.Contains(songBracket))
@@ -613,7 +707,7 @@ namespace rhythm_games_converter
                 {
                     if (SDVXPage.Contains(songBracketUnicode) || SDVXPage2.Contains(songBracketUnicode))
                     {
-                        matchesSDVX.Add(titleUnicode + " - (" + title);
+                        matchesSDVX.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (nostalgiaPage.Contains(songBracket) || nostalgiaPage2.Contains(songBracket))
@@ -624,7 +718,7 @@ namespace rhythm_games_converter
                 {
                     if (nostalgiaPage.Contains(songBracketUnicode) || nostalgiaPage2.Contains(songBracketUnicode))
                     {
-                        matchesnostalgia.Add(titleUnicode + " - (" + title);
+                        matchesnostalgia.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (DRSDPage.Contains(songBracket))
@@ -635,7 +729,7 @@ namespace rhythm_games_converter
                 {
                     if (DRSDPage.Contains(songBracketUnicode))
                     {
-                        matchesDRSD.Add(titleUnicode + " - (" + title);
+                        matchesDRSD.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (MUSECAPage.Contains(songBracket))
@@ -646,7 +740,7 @@ namespace rhythm_games_converter
                 {
                     if (MUSECAPage.Contains(songBracketUnicode))
                     {
-                        matchesMUSECA.Add(titleUnicode + " - (" + title);
+                        matchesMUSECA.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
             }
@@ -696,6 +790,15 @@ namespace rhythm_games_converter
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
+                var titleUnicode = string.Empty;
+                if (titlesUni != null)
+                {
+                    titleUnicode = "\"" + titlesUni[i] + "\"";
+                }
+                else
+                {
+                    titleUnicode = "NOT AVAILABLE";
+                }
                 var artist = string.Empty;
                 if (artists != null)
                 {
@@ -718,6 +821,7 @@ namespace rhythm_games_converter
                 string songName = parsed.First.First.First.First.Next.ToString().Replace("\"name\":", "").Replace("\"", "").Trim();
                 string songNameUpper = songName.ToUpper();
                 string titleUpper = title.ToUpper();
+                string titleUniUpper = titleUnicode.ToUpper();
                 if (songNameUpper == titleUpper)
                 {
                     string link = string.Empty;
@@ -729,6 +833,27 @@ namespace rhythm_games_converter
                             continue;
                         }
                     }                    
+                    if (search.Contains("\"link\":"))
+                    {
+                        int index = search.IndexOf("\"link\":");
+                        link = search.Substring(index + 9);
+                        int index2 = link.IndexOf("\"");
+                        link = link.Substring(0, index2);
+                    }
+                    cloneMatches.Add(title);
+                    cloneLinks.Add(link);
+                }
+                else if (titleUniUpper == titleUpper)
+                {
+                    string link = string.Empty;
+                    string search = parsed.First.First.First.ToString();
+                    if (!string.IsNullOrEmpty(artist))
+                    {
+                        if (!search.Contains(artist))
+                        {
+                            continue;
+                        }
+                    }
                     if (search.Contains("\"link\":"))
                     {
                         int index = search.IndexOf("\"link\":");
