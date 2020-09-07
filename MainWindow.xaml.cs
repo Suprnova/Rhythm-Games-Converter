@@ -39,6 +39,7 @@ namespace rhythm_games_converter
             source.SelectedIndex = 0;
             search.SelectedIndex = 0;
             prov.SelectedIndex = 0;
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); //adds codepages for encoding
         }
         public static class Globals
         {
@@ -71,6 +72,10 @@ namespace rhythm_games_converter
             else if (search.SelectedIndex == 3)
             {
                 provider.Text = "Cypher Gate";
+            }
+            else if (search.SelectedIndex == 4)
+            {
+                provider.Text = "groovecoaster.jp";
             }
         }
 
@@ -135,6 +140,16 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = DJMAXMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 4)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = GrooveCoasterMatching(titles, null);
             }
         }
         private void SourceOsu()
@@ -203,7 +218,17 @@ namespace rhythm_games_converter
                 dir.IsEnabled = false;
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
-                results.Text = DJMAXMatching(titles, null);
+                results.Text = DJMAXMatching(titles, titlesUni);
+            }
+            else if (search.SelectedIndex == 4)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = GrooveCoasterMatching(titles, titlesUni);
             }
         }
         private void SourceStep()
@@ -274,6 +299,16 @@ namespace rhythm_games_converter
                 prov.IsEnabled = false;
                 results.Text = DJMAXMatching(titles, null);
             }
+            else if (search.SelectedIndex == 4)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
         }
         private void SourceBeatSaber()
         {
@@ -343,6 +378,16 @@ namespace rhythm_games_converter
                 prov.IsEnabled = false;
                 results.Text = DJMAXMatching(titles, null);
             }
+            else if (search.SelectedIndex == 4)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
@@ -381,16 +426,30 @@ namespace rhythm_games_converter
                 return;
             }
         }
-        public static string ScrapePage(string webpage)
+        public static string ScrapePage(string webpage, bool utf8)
         {
-            string page = string.Empty;
-            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
-            HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
-            using (StreamReader sr = new StreamReader(res.GetResponseStream()))
+            if (utf8 == true)
             {
-                page = sr.ReadToEnd();
+                string page = string.Empty;
+                HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
+                HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
+                using (StreamReader sr = new StreamReader(res.GetResponseStream()))
+                {
+                    page = sr.ReadToEnd();
+                }
+                return page;
             }
-            return page;
+            else //must be a bemaniwiki page encoded in EUC-JP, not UTF8
+            {
+                string page = string.Empty;
+                HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
+                HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
+                using (StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding( "EUC-JP" )))
+                {
+                    page = sr.ReadToEnd();
+                }
+                return page;
+            }
         }
         public List<string> CloneFiles(string directory)
         {
@@ -587,21 +646,76 @@ namespace rhythm_games_converter
                 Console.WriteLine(e.Message);
             }
         }
-        public string DJMAXMatching(List<string> titles, List<string> titlesUni)
+        public string GrooveCoasterMatching(List<string> titles, List<string> titlesUni)
         {
             var matches = new List<string>();
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
             Console.Clear();
-            Console.WriteLine("Fetching DJMAX song list...");
-            string djmaxPage = ScrapePage("http://cyphergate.net/index.php?title=DJMAX_RESPECT:Tracklist").ToUpper();
+            Console.WriteLine("Fetching Groove Coaster song list...");
+            string gcPage = ScrapePage("https://groovecoaster.jp/music/#animepops", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#vocaloid", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#touhou", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#otogame", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#game", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#variety", true).ToUpper() + ScrapePage("https://groovecoaster.jp/music/#original", true).ToUpper();
             Console.Clear();
             Console.WriteLine("Finding matches...");
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                if (matches.Contains(title.ToUpper()) || matches.Contains(title))
+                var titleUnicode = String.Empty;
+                if (titlesUni != null)
                 {
-                    continue;
+                    titleUnicode = titlesUni[i];
                 }
+                else
+                {
+                    titleUnicode = "NOT AVAILABLE";
+                }
+                string songBracket = ">" + title.ToUpper() + "<";
+                string songBracketUnicode = string.Empty;
+                if (titlesUni != null)
+                {
+                    songBracketUnicode = ">" + titlesUni[i].ToUpper() + "<";
+                }
+                else
+                {
+                    songBracketUnicode = ">N/A<";
+                }
+                bool containsUnicode = !songBracketUnicode.Contains(">N/A<");
+                if (gcPage.Contains(songBracket))
+                {
+                    matches.Add(title);
+                }
+                else if (containsUnicode == true)
+                {
+                    if (gcPage.Contains(songBracketUnicode))
+                    {
+                        matches.Add(titleUnicode + " - (" + title + ")");
+                    }
+                }
+            }
+            var sb = new StringBuilder(4096);
+            matches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
+        public string DJMAXMatching(List<string> titles, List<string> titlesUni)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching DJMAX song list...");
+            string djmaxPage = ScrapePage("http://cyphergate.net/index.php?title=DJMAX_RESPECT:Tracklist", true).ToUpper();
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
                 var titleUnicode = String.Empty;
                 if (titlesUni != null)
                 {
@@ -649,66 +763,70 @@ namespace rhythm_games_converter
         public string BEMANIMatching(List<string> titles, List<string> titlesUni)
         {
             string[] matches = new string[1000000];
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
             Console.Clear();
             origRow = Console.CursorTop;
             Console.WriteLine("Scraping webpages... (0/19)");
             Console.WriteLine("...................");
-            string IIDXPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("IIDX Page Downloaded (1/19)            ", 0);
+            string IIDXPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("IIDX Page Downloaded (1/19)                   ", 0);
             WriteAt("x..................", 1);
-            string IIDXPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("IIDX Page 2 Downloaded (2/19)          ", 0);
+            string IIDXPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("IIDX Page 2 Downloaded (2/19)                 ", 0);
             WriteAt("xx.................", 1);
-            string pmPage = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("pop'n'music Page Downloaded (3/19)     ", 0);
+            string pmPage = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("pop'n'music Page Downloaded (3/19)            ", 0);
             WriteAt("xxx................", 1);
-            string pmPage2 = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("pop'n'music Page 2 Downloaded (4/19)   ", 0);
+            string pmPage2 = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("pop'n'music Page 2 Downloaded (4/19)            ", 0);
             WriteAt("xxxx...............", 1);
-            string DDRPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("DDR Page Downloaded (5/19)             ", 0);
+            string DDRPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("Dance Dance Revolution Page Downloaded (5/19)                      ", 0);
             WriteAt("xxxxx..............", 1);
-            string DDRPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("DDR 2 Page Downloaded (6/19)           ", 0);
+            string DDRPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("Dance Dance Revolution Page 2 Downloaded (6/19)                    ", 0);
             WriteAt("xxxxxx.............", 1);
-            string GDPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("GITADORA Page Downloaded (7/19)        ", 0);
+            string GDPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("GITADORA Page Downloaded (7/19)                 ", 0);
             WriteAt("xxxxxxx............", 1);
-            string GDPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29").ToUpper();
-            WriteAt("GITADORA Page 2 Downloaded (8/19)      ", 0);
+            string GDPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29", false).ToUpper();
+            WriteAt("GITADORA Page 2 Downloaded (8/19)               ", 0);
             WriteAt("xxxxxxxx...........", 1);
-            string GDPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29").ToUpper();
-            WriteAt("GITADORA Page 3 Downloaded (9/19)      ", 0);
+            string GDPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29", false).ToUpper();
+            WriteAt("GITADORA Page 3 Downloaded (9/19)               ", 0);
             WriteAt("xxxxxxxxx..........", 1);
-            string jubeatPage = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("jubeat Page Downloaded (10/19)         ", 0);
+            string jubeatPage = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("jubeat Page Downloaded (10/19)                  ", 0);
             WriteAt("xxxxxxxxxx.........", 1);
-            string jubeatPage2 = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("jubeat Page 2 Downloaded (11/19)       ", 0);
+            string jubeatPage2 = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("jubeat Page 2 Downloaded (11/19)                ", 0);
             WriteAt("xxxxxxxxxxx........", 1);
-            string reflectPage = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("REFLEC BEAT Page Downloaded (12/19)    ", 0);
+            string reflectPage = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("REFLEC BEAT Page Downloaded (12/19)             ", 0);
             WriteAt("xxxxxxxxxxxx.......", 1);
-            string reflectPage2 = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%A5%EA%A5%E1%A5%A4%A5%AF%C9%E8%CC%CC%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("REFELC BEAT Page 2 Downloaded (13/19)  ", 0);
+            string reflectPage2 = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%A5%EA%A5%E1%A5%A4%A5%AF%C9%E8%CC%CC%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("REFELC BEAT Page 2 Downloaded (13/19)           ", 0);
             WriteAt("xxxxxxxxxxxxx......", 1);
-            string SDVXPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("SOUND VOLTEX Page Downloaded (14/19)   ", 0);
+            string SDVXPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("SOUND VOLTEX Page Downloaded (14/19)            ", 0);
             WriteAt("xxxxxxxxxxxxxx.....", 1);
-            string SDVXPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("SOUND VOLTEX Page 2 Downloaded (15/19) ", 0);
+            string SDVXPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("SOUND VOLTEX Page 2 Downloaded (15/19)          ", 0);
             WriteAt("xxxxxxxxxxxxxxx....", 1);
-            string nostalgiaPage = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("NOSTALGIA Page Downloaded (16/19)      ", 0);
+            string nostalgiaPage = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("NOSTALGIA Page Downloaded (16/19)               ", 0);
             WriteAt("xxxxxxxxxxxxxxxx...", 1);
-            string nostalgiaPage2 = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("NOSTALGIA Page 2 Downloaded (17/19)    ", 0);
+            string nostalgiaPage2 = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("NOSTALGIA Page 2 Downloaded (17/19)             ", 0);
             WriteAt("xxxxxxxxxxxxxxxxx..", 1);
-            string DRSDPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("DANCERUSH STARDOM Page Downloaded (18/19)", 0);
+            string DRSDPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("DANCERUSH STARDOM Page Downloaded (18/19)         ", 0);
             WriteAt("xxxxxxxxxxxxxxxxxx.", 1);
-            string MUSECAPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8").ToUpper();
-            WriteAt("MUSECA Page Downloaded (19/19)           ", 0);
+            string MUSECAPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            WriteAt("MUSECA Page Downloaded (19/19)                    ", 0);
             WriteAt("xxxxxxxxxxxxxxxxxxx", 1);
             var matchesIIDX = new List<string>();
             var matchesPM = new List<string>();
@@ -1034,6 +1152,10 @@ namespace rhythm_games_converter
         {
             var json = String.Empty;
             var maimaiMatches = new List<string>();
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
             Console.Clear();
             Console.WriteLine("Matching maimai songs...");
             using (WebClient wc = new WebClient())

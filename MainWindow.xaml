@@ -61,6 +61,11 @@
                     <TextBlock Name="djmaxsearch" FontSize="14">DJMAX RESPECT</TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock Name="gcsearch" FontSize="14">GROOVE COASTER</TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Songs directory:" HorizontalAlignment="Left" Margin="163,10,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
         <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="296,10,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="236" FontSize="14" Name="dir"/>
