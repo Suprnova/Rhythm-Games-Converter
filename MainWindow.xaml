@@ -35,7 +35,7 @@
             </ComboBoxItem>
             <ComboBoxItem>
                 <StackPanel>
-                    <TextBlock Name="beatsabersource" FontSize="14">BeatSaber</TextBlock>
+                    <TextBlock Name="beatsabersource" FontSize="14">Beat Saber</TextBlock>
                 </StackPanel>
             </ComboBoxItem>
         </ComboBox>
@@ -56,6 +56,11 @@
                     <TextBlock Name="maimai" FontSize="14">maimai</TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock Name="djmaxsearch" FontSize="14">DJMAX RESPECT</TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Songs directory:" HorizontalAlignment="Left" Margin="163,10,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
         <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="296,10,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="236" FontSize="14" Name="dir"/>
@@ -70,8 +75,8 @@
         <Button Content="Browse..." Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="532,10,0,0" VerticalAlignment="Top" Width="107" Click="Browse_Click" Name="browse"/>
         <ListBox Grid.Row="1" Margin="10,44,692,10" Grid.ColumnSpan="2" Name="sourceSongs">
         </ListBox>
-        <TextBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="results"/>
-        <ListBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="resultsList" SelectionChanged="resultsList_SelectionChanged"/>
+        <TextBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="results" IsReadOnly="True"/>
+        <ListBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="resultsList"/>
         <Button Content="Download" Name="download" Grid.Column="1" HorizontalAlignment="Left" Margin="713,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="83" Click="Download_Click" IsEnabled="False"/>
         <Button Content="Search!" Name="searchBtn" Grid.Column="1" HorizontalAlignment="Left" Height="31" Margin="678,30,0,0" VerticalAlignment="Top" Grid.RowSpan="2" Width="118" FontSize="14" Click="Search_Click"/>
 

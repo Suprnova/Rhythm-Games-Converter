@@ -68,6 +68,10 @@ namespace rhythm_games_converter
             {
                 provider.Text = "SEGA";
             }
+            else if (search.SelectedIndex == 3)
+            {
+                provider.Text = "Cypher Gate";
+            }
         }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
@@ -81,9 +85,16 @@ namespace rhythm_games_converter
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-            string webpage = Globals.linksFinal[resultsList.SelectedIndex];
-            string command = "start " + webpage;
-            System.Diagnostics.Process.Start(@"cmd", @"/c " + command);
+            try
+            {
+                string webpage = Globals.linksFinal[resultsList.SelectedIndex];
+                string command = "start " + webpage;
+                System.Diagnostics.Process.Start(@"cmd", @"/c " + command);
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                return;
+            }
         }
         private void SourceClone()
         {
@@ -114,6 +125,16 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = MaiMaiMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 3)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = DJMAXMatching(titles, null);
             }
         }
         private void SourceOsu()
@@ -174,6 +195,16 @@ namespace rhythm_games_converter
                 prov.IsEnabled = false;
                 results.Text = MaiMaiMatching(titles, titlesUni);
             }
+            else if (search.SelectedIndex == 3)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = DJMAXMatching(titles, null);
+            }
         }
         private void SourceStep()
         {
@@ -232,6 +263,16 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = MaiMaiMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 3)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = DJMAXMatching(titles, null);
             }
         }
         private void SourceBeatSaber()
@@ -292,6 +333,16 @@ namespace rhythm_games_converter
                 prov.IsEnabled = false;
                 results.Text = MaiMaiMatching(titles, null);
             }
+            else if (search.SelectedIndex == 3)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = DJMAXMatching(titles, null);
+            }
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
@@ -349,8 +400,10 @@ namespace rhythm_games_converter
             string[] files = Directory.GetFiles(directory, "*.ini", SearchOption.AllDirectories);
             var titles = new List<string>();
             string result = string.Empty;
+            int i = 0;
             foreach (string file in files)
             {
+                i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
                 {
@@ -368,6 +421,7 @@ namespace rhythm_games_converter
                         }
                     }
                 }
+                Console.WriteLine("Indexing Clone Hero files... " + i + "/" + files.Length);
             }
             return titles;
         }
@@ -375,16 +429,17 @@ namespace rhythm_games_converter
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
-            Console.WriteLine("Indexing BeatSaber files...");
+            Console.WriteLine("Indexing Beat Saber files...");
             string[] files = Directory.GetFiles(directory, "info.dat", SearchOption.AllDirectories);
             var titles = new List<string>();
             string result = string.Empty;
+            int i = 0;
             foreach (string file in files)
             {
+                i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
                 {
-                    Console.WriteLine(line);
                     if (line.Contains("\"_songName\":")) // title saved
                     {
                         var text = line.Replace("\"_songName\": ", "");
@@ -400,6 +455,7 @@ namespace rhythm_games_converter
                         }
                     }
                 }
+                Console.WriteLine("Indexing Beat Saber files... " + i + "/" + files.Length);
             }
             return titles;
         }
@@ -415,8 +471,10 @@ namespace rhythm_games_converter
             string result = String.Empty;
             string resultUni = String.Empty;
             string artist = String.Empty;
+            int i = 0;
             foreach (string file in files)
             {
+                i++;
                 var lines = File.ReadAllLines(file);
 
                 result = string.Empty;
@@ -477,11 +535,8 @@ namespace rhythm_games_converter
                         else { break; }
                     }
                 ////no match, next line
-                //nextline:
-                //    Console.Write("");
                 } // loops to line
-            //nextfile:
-            //    Console.Write("");
+                Console.WriteLine("Indexing osu! files... " + i + "/" + files.Length);
             } // loops to file
             return (titles, titlesUni, artists);
         }
@@ -493,8 +548,10 @@ namespace rhythm_games_converter
             string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
             var titles = new List<string>();
             string result = string.Empty;
+            int i = 0;
             foreach (string file in files)
             {
+                i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
                 {
@@ -510,6 +567,7 @@ namespace rhythm_games_converter
                         }
                     }
                 }
+                Console.WriteLine("Indexing Stepmania files... " + i + "/" + files.Length);
             }
             return titles;
         }
@@ -529,9 +587,67 @@ namespace rhythm_games_converter
                 Console.WriteLine(e.Message);
             }
         }
+        public string DJMAXMatching(List<string> titles, List<string> titlesUni)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching DJMAX song list...");
+            string djmaxPage = ScrapePage("http://cyphergate.net/index.php?title=DJMAX_RESPECT:Tracklist").ToUpper();
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                if (matches.Contains(title.ToUpper()) || matches.Contains(title))
+                {
+                    continue;
+                }
+                var titleUnicode = String.Empty;
+                if (titlesUni != null)
+                {
+                    titleUnicode = titlesUni[i];
+                }
+                else
+                {
+                    titleUnicode = "NOT AVAILABLE";
+                }
+                string songBracket = ">" + title.ToUpper() + "<";
+                string songBracketUnicode = string.Empty;
+                if (titlesUni != null)
+                {
+                    songBracketUnicode = ">" + titlesUni[i].ToUpper() + "<";
+                }
+                else
+                {
+                    songBracketUnicode = ">N/A<";
+                }
+                bool containsUnicode = !songBracketUnicode.Contains(">N/A<");
+                if (djmaxPage.Contains(songBracket))
+                {
+                    matches.Add(title);
+                }
+                else if (containsUnicode == true)
+                {
+                    if (djmaxPage.Contains(songBracketUnicode))
+                    {
+                        matches.Add(titleUnicode + " - (" + title + ")");
+                    }
+                }
+            }
+            var sb = new StringBuilder(4096);
+            matches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
         public string BEMANIMatching(List<string> titles, List<string> titlesUni)
         {
-            MainWindow w = new MainWindow();
             string[] matches = new string[1000000];
             Console.Clear();
             origRow = Console.CursorTop;
@@ -598,10 +714,10 @@ namespace rhythm_games_converter
             var matchesPM = new List<string>();
             var matchesDDR = new List<string>();
             var matchesGD = new List<string>();
-            var matchesjubeat = new List<string>();
-            var matchesreflect = new List<string>();
+            var matchesJubeat = new List<string>();
+            var matchesReflect = new List<string>();
             var matchesSDVX = new List<string>();
-            var matchesnostalgia = new List<string>();
+            var matchesNostalgia = new List<string>();
             var matchesDRSD = new List<string>();
             var matchesMUSECA = new List<string>();
             Console.WriteLine("\nFinding matches...");
@@ -679,24 +795,24 @@ namespace rhythm_games_converter
                 }
                 if (jubeatPage.Contains(songBracket) || jubeatPage2.Contains(songBracket))
                 {
-                    matchesjubeat.Add(title);
+                    matchesJubeat.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
                     if (jubeatPage.Contains(songBracketUnicode) || jubeatPage2.Contains(songBracketUnicode))
                     {
-                        matchesjubeat.Add(titleUnicode + " - (" + title + ")");
+                        matchesJubeat.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (reflectPage.Contains(songBracket) || reflectPage2.Contains(songBracket))
                 {
-                    matchesreflect.Add(title);
+                    matchesReflect.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
                     if (reflectPage.Contains(songBracketUnicode) || reflectPage2.Contains(songBracketUnicode))
                     {
-                        matchesreflect.Add(titleUnicode + " - (" + title + ")");
+                        matchesReflect.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (SDVXPage.Contains(songBracket) || SDVXPage2.Contains(songBracket))
@@ -712,13 +828,13 @@ namespace rhythm_games_converter
                 }
                 if (nostalgiaPage.Contains(songBracket) || nostalgiaPage2.Contains(songBracket))
                 {
-                    matchesnostalgia.Add(title);
+                    matchesNostalgia.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
                     if (nostalgiaPage.Contains(songBracketUnicode) || nostalgiaPage2.Contains(songBracketUnicode))
                     {
-                        matchesnostalgia.Add(titleUnicode + " - (" + title + ")");
+                        matchesNostalgia.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
                 if (DRSDPage.Contains(songBracket))
@@ -748,33 +864,64 @@ namespace rhythm_games_converter
             string newline = Environment.NewLine;
             sb.AppendLine("[beatmania IIDX]");
             matchesIIDX.ForEach(s => sb.AppendLine(s));
-
+            if (matchesIIDX.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[pop'n'music]");
             matchesPM.ForEach(s => sb.AppendLine(s));
-
+            if (matchesPM.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[Dance Dance Revolution]");
             matchesDDR.ForEach(s => sb.AppendLine(s));
-
+            if (matchesDDR.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[Gitadora]");
             matchesGD.ForEach(s => sb.AppendLine(s));
-
+            if (matchesGD.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[jubeat]");
-            matchesjubeat.ForEach(s => sb.AppendLine(s));
-
+            matchesJubeat.ForEach(s => sb.AppendLine(s));
+            if (matchesJubeat.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[REFLEC BEAT]");
-            matchesreflect.ForEach(s => sb.AppendLine(s));
-
+            matchesReflect.ForEach(s => sb.AppendLine(s));
+            if (matchesReflect.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[Sound Voltex]");
             matchesSDVX.ForEach(s => sb.AppendLine(s));
-
+            if (matchesSDVX.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[NOSTALGIA]");
-            matchesnostalgia.ForEach(s => sb.AppendLine(s));
-
+            matchesNostalgia.ForEach(s => sb.AppendLine(s));
+            if (matchesNostalgia.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[DANCERUSH STARDOM]");
             matchesDRSD.ForEach(s => sb.AppendLine(s));
-
+            if (matchesDRSD.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
             sb.AppendLine(newline + "[MÚSECA]");
             matchesMUSECA.ForEach(s => sb.AppendLine(s));
+            if (matchesMUSECA.Count == 0)
+            {
+                sb.AppendLine("No matches :(");
+            }
 
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -787,6 +934,8 @@ namespace rhythm_games_converter
             var json = string.Empty;
             var cloneMatches = new List<string>();
             var cloneLinks = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Searching Clone Hero songs... ");
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
@@ -815,7 +964,7 @@ namespace rhythm_games_converter
                 if (json.Length < 100)
                 {
                     Console.Clear();
-                    Console.WriteLine(i + "/" + titles.Count);
+                    Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
                     continue;
                 } 
                 string songName = parsed.First.First.First.First.Next.ToString().Replace("\"name\":", "").Replace("\"", "").Trim();
@@ -830,6 +979,8 @@ namespace rhythm_games_converter
                     {
                         if (!search.Contains(artist))
                         {
+                            Console.Clear();
+                            Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
                             continue;
                         }
                     }                    
@@ -865,7 +1016,7 @@ namespace rhythm_games_converter
                     cloneLinks.Add(link);
                 }
                 Console.Clear();
-                Console.WriteLine(i + "/" + titles.Count);
+                Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
             }
             var sb = new StringBuilder(4096);
             cloneMatches.ForEach(s => resultsList.Items.Add(s));
@@ -912,17 +1063,16 @@ namespace rhythm_games_converter
                 }
             }
             var sb = new StringBuilder(4096);
-            sb.AppendLine("[maimai]");
             maimaiMatches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
             resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
             return sb.ToString();
-        }
-
-        private void resultsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            
         }
     }
 }
