@@ -12,6 +12,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * BEMANI (via [BEMANIWiki](https://bemaniwiki.com/))
 * Clone Hero (via [Chorus](https://chorus.fightthe.pw/))
 * maimai International Version (via [SEGA](https://maimai.sega.com/))
+* DJMAX RESPECT (via [Cypher Gate](https://cyphergate.net/))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
