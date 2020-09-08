@@ -46,11 +46,36 @@ namespace rhythm_games_converter
             public static string links = string.Empty;
             public static string[] linksFinal = new string[100000];
         }
+        public class Beatmap
+        {
+            public string Title { get; set; }
+            public string Artist { get; set; }
+            public string BeatmapSet_ID { get; set; }
+            public string Mapper { get; set; }
+
+        }
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
         [DllImport("Kernel32")]
         public static extern void FreeConsole();
+
+        protected static int origRow;
+        protected static int origCol;
+
+        protected static void WriteAt(string s, int x)
+        {
+            try
+            {
+                Console.SetCursorPosition(0, origRow + x);
+                Console.Write(s);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Console.Clear();
+                Console.WriteLine(e.Message);
+            }
+        }
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
         {
 
@@ -77,6 +102,10 @@ namespace rhythm_games_converter
             {
                 provider.Text = "groovecoaster.jp";
             }
+            else if (search.SelectedIndex == 5)
+            {
+                provider.Text = "osusearch";
+            }
         }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
@@ -101,9 +130,46 @@ namespace rhythm_games_converter
                 return;
             }
         }
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5))
+            {
+                MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
+                return;
+            }
+            else if (File.Exists(dir.Text))
+            {
+                MessageBox.Show("The directory provided does not refer to a folder.", "Error");
+                return;
+            }
+            else if (Directory.Exists(dir.Text))
+            {
+                if (source.SelectedIndex == 0)
+                {
+                    SourceOsu();
+                }
+                else if (source.SelectedIndex == 1)
+                {
+                    SourceClone();
+                }
+                else if (source.SelectedIndex == 2)
+                {
+                    SourceStep();
+                }
+                else if (source.SelectedIndex == 3)
+                {
+                    SourceBeatSaber();
+                }
+            }
+            else
+            {
+                MessageBox.Show("The directory provided is invalid.", "Error");
+                return;
+            }
+        }
         private void SourceClone()
         {
-            var titles = CloneFiles(dir.Text);
+            (List<string> titles, List<string> artists) = CloneFiles(dir.Text);
             foreach (string title in titles)
             {
                 if (!String.IsNullOrWhiteSpace(title))
@@ -150,6 +216,35 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 5)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = OsuMatching(titles, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
             }
         }
         private void SourceOsu()
@@ -233,7 +328,7 @@ namespace rhythm_games_converter
         }
         private void SourceStep()
         {
-            var titles = StepFiles(dir.Text);
+            (List<string> titles, List<string> artists) = StepFiles(dir.Text);
             foreach (string title in titles)
             {
                 if (!String.IsNullOrWhiteSpace(title))
@@ -260,7 +355,7 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
 
-                Globals.links = CloneMatching(titles, null, null);
+                Globals.links = CloneMatching(titles, null, artists);
                 int i = 0;
                 using (StringReader reader = new StringReader(Globals.links))
                 {
@@ -308,11 +403,40 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 5)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = OsuMatching(titles, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
             }
         }
         private void SourceBeatSaber()
         {
-            var titles = BeatSaberFiles(dir.Text);
+            (List<string> titles, List<string> artists) = BeatSaberFiles(dir.Text);
             foreach (string title in titles)
             {
                 if (!String.IsNullOrWhiteSpace(title))
@@ -339,7 +463,7 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
 
-                Globals.links = CloneMatching(titles, null, null);
+                Globals.links = CloneMatching(titles, null, artists);
                 int i = 0;
                 using (StringReader reader = new StringReader(Globals.links))
                 {
@@ -388,42 +512,32 @@ namespace rhythm_games_converter
                 prov.IsEnabled = false;
                 results.Text = GrooveCoasterMatching(titles, null);
             }
-        }
-        private void Search_Click(object sender, RoutedEventArgs e)
-        {
-            if (source.SelectedIndex == 1 && search.SelectedIndex == 1)
+            else if (search.SelectedIndex == 5)
             {
-                MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
-                return;
-            }
-            else if (File.Exists(dir.Text))
-            {
-                MessageBox.Show("The directory provided does not refer to a folder.", "Error");
-                return;
-            }
-            else if (Directory.Exists(dir.Text))
-            {               
-                if (source.SelectedIndex == 0) 
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+
+                Globals.links = OsuMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.links))
                 {
-                    SourceOsu();
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.linksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
                 }
-                else if (source.SelectedIndex == 1) 
-                {
-                    SourceClone();
-                }
-                else if (source.SelectedIndex == 2)
-                {
-                    SourceStep(); 
-                }
-                else if (source.SelectedIndex == 3)
-                {
-                    SourceBeatSaber();
-                }
-            }
-            else
-            {
-                MessageBox.Show("The directory provided is invalid.", "Error");
-                return;
             }
         }
         public static string ScrapePage(string webpage, bool utf8)
@@ -451,17 +565,19 @@ namespace rhythm_games_converter
                 return page;
             }
         }
-        public List<string> CloneFiles(string directory)
+        public (List<string> titles, List<string> artists) CloneFiles(string directory)
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
             Console.WriteLine("Indexing Clone Hero files...");
             string[] files = Directory.GetFiles(directory, "*.ini", SearchOption.AllDirectories);
             var titles = new List<string>();
-            string result = string.Empty;
+            var artists = new List<string>();
             int i = 0;
             foreach (string file in files)
             {
+                string result = string.Empty;
+                string resultArtist = string.Empty;
                 i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
@@ -471,30 +587,43 @@ namespace rhythm_games_converter
                         var text = line.Replace("name", "");
                         var text2 = text.Replace("=", "");
                         result = text2.Trim();
+                    }
+                    else if (line.Contains("artist"))
+                    {
+                        var text = line.Replace("artist", "");
+                        var text2 = text.Replace("=", "");
+                        resultArtist = text2.Trim();
+                    }
+                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
+                            artists.Add(resultArtist);
 
                             //goto nextfile;\
                             break;
                         }
+                        else { break; }
                     }
                 }
                 Console.WriteLine("Indexing Clone Hero files... " + i + "/" + files.Length);
             }
-            return titles;
+            return (titles, artists);
         }
-        public List<string> BeatSaberFiles(string directory)
+        public (List<string> titles, List<string> artists) BeatSaberFiles(string directory)
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
             Console.WriteLine("Indexing Beat Saber files...");
             string[] files = Directory.GetFiles(directory, "info.dat", SearchOption.AllDirectories);
             var titles = new List<string>();
-            string result = string.Empty;
+            var artists = new List<string>();
             int i = 0;
             foreach (string file in files)
             {
+                string result = string.Empty;
+                string resultArtist = string.Empty;
                 i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
@@ -505,18 +634,30 @@ namespace rhythm_games_converter
                         var text2 = text.Replace("\"", "");
                         result = text2.Trim(',');
                         result = result.Trim();
+                    }
+                    else if (line.Contains("\"_songAuthorName\":")) // title saved
+                    {
+                        var text = line.Replace("\"_songAuthorName\": ", "");
+                        var text2 = text.Replace("\"", "");
+                        resultArtist = text2.Trim(',');
+                        resultArtist = resultArtist.Trim();
+                    }
+                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
+                            artists.Add(resultArtist);
 
                             //goto nextfile;\
                             break;
                         }
+                        else { break; }
                     }
                 }
                 Console.WriteLine("Indexing Beat Saber files... " + i + "/" + files.Length);
             }
-            return titles;
+            return (titles, artists);
         }
         public static (List<string> titles, List<string> titlesUni, List<string> artists) OsuFiles(string directory)
         {
@@ -599,17 +740,19 @@ namespace rhythm_games_converter
             } // loops to file
             return (titles, titlesUni, artists);
         }
-        public List<string> StepFiles(string directory)
+        public (List<string> titles, List<string> artists)StepFiles(string directory)
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
             Console.WriteLine("Indexing Stepmania files...");
             string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
             var titles = new List<string>();
-            string result = string.Empty;
+            var artists = new List<string>();           
             int i = 0;
             foreach (string file in files)
             {
+                string result = string.Empty;
+                string resultArtist = string.Empty;
                 i++;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
@@ -618,33 +761,28 @@ namespace rhythm_games_converter
                     {
                         var text = line.Replace("#TITLE:", "");
                         result = text.Trim(';');
+                    }
+                    else if (line.Contains("#ARTIST:"))
+                    {
+                        var text = line.Replace("#ARTIST:", "");
+                        resultArtist = text.Trim(';');
+                    }
+                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
+                            artists.Add(resultArtist);
+
                             //goto nextfile;\
                             break;
                         }
+                        else { break; }
                     }
                 }
                 Console.WriteLine("Indexing Stepmania files... " + i + "/" + files.Length);
             }
-            return titles;
-        }
-        protected static int origRow;
-        protected static int origCol;
-
-        protected static void WriteAt(string s, int x)
-        {
-            try
-            {
-                Console.SetCursorPosition(0, origRow + x);
-                Console.Write(s);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                Console.Clear();
-                Console.WriteLine(e.Message);
-            }
+            return (titles, artists);
         }
         public string GrooveCoasterMatching(List<string> titles, List<string> titlesUni)
         {
@@ -838,6 +976,7 @@ namespace rhythm_games_converter
             var matchesNostalgia = new List<string>();
             var matchesDRSD = new List<string>();
             var matchesMUSECA = new List<string>();
+            Console.Clear();
             Console.WriteLine("\nFinding matches...");
             for (var i = 0; i<titles.Count; i++)
             {
@@ -1048,7 +1187,7 @@ namespace rhythm_games_converter
         }
         public string CloneMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
-            // god yes i know i dont know how to use jsons leave me alone
+            // need to rewrite soon to be like the osu! results
             var json = string.Empty;
             var cloneMatches = new List<string>();
             var cloneLinks = new List<string>();
@@ -1074,9 +1213,16 @@ namespace rhythm_games_converter
                 else
                 {
                 }
-                using (WebClient wc = new WebClient())
+                try
                 {
-                    json = wc.DownloadString("https://chorus.fightthe.pw/api/search?query=name%3D%22" + title + "%22");
+                    using (WebClient wc = new WebClient())
+                    {
+                        json = wc.DownloadString("https://chorus.fightthe.pw/api/search?query=name%3D%22" + title + "%22");
+                    }
+                }
+                catch
+                {
+                    continue;
                 }
                 var parsed = JObject.Parse(json);
                 if (json.Length < 100)
@@ -1194,6 +1340,133 @@ namespace rhythm_games_converter
                 sb.AppendLine("No matches :(");
                 results.FontSize = 50;
             }
+            return sb.ToString();
+        }
+        public string OsuMatching(List<string> titles, List<string> artists)
+        {
+            var json = string.Empty;
+            var osuMatches = new List<string>();
+            var osuLinks = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Searching osu! songs... ");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                var artist = string.Empty;
+                bool hasArtist = false;
+                if (artists != null)
+                {
+                    hasArtist = true;
+                    artist = artists[i];
+                }
+                else { }
+                if (hasArtist == true)
+                {
+                    try
+                    {
+                        using (WebClient wc = new WebClient())
+                        {
+                            json = wc.DownloadString("https://osusearch.com/query/?title=\"" + title + "\"&artist=\"" + artist + "\"&statuses=Ranked,Loved");
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    if (json.Length < 100)
+                    {
+                        try
+                        {
+                            using (WebClient wc = new WebClient())
+                            {
+                                json = wc.DownloadString("https://osusearch.com/query/?title=" + title + "&artist=" + artist + "&statuses=Ranked,Loved");
+                            }
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                        if (json.Length < 100)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Searching osu! songs... " + i + "/" + titles.Count);
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        using (WebClient wc = new WebClient())
+                        {
+
+                            json = wc.DownloadString("https://osusearch.com/query/?title=\"" + title + "\"&statuses=Ranked,Loved");
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    if (json.Length < 100)
+                    {
+                        try
+                        {
+                            using (WebClient wc = new WebClient())
+                            {
+                                json = wc.DownloadString("https://osusearch.com/query/?title=" + title + "&statuses=Ranked,Loved");
+                            }
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                        if (json.Length < 100)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Searching osu! songs... " + i + "/" + titles.Count);
+                            continue;
+                        }
+                    }
+                }
+                JObject beatmapSearch = JObject.Parse(json);
+                IList<JToken> results = beatmapSearch["beatmaps"].Children().ToList();
+                IList<Beatmap> beatmaps = new List<Beatmap>();
+                foreach(JToken result in results)
+                {
+                    Beatmap beatmap = result.ToObject<Beatmap>();
+                    if (beatmap.Title == title)
+                    {
+                        if (hasArtist == true)
+                        {
+                            if (beatmap.Artist == artist)
+                            {
+                                osuMatches.Add(beatmap.Title);
+                                osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
+                            }
+                            else { }
+                        }
+                        else
+                        {
+                            osuMatches.Add(beatmap.Title + " - Mapped by " + beatmap.Mapper);
+                            osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
+                        }
+                        
+                    }                    
+                }
+                Console.Clear();
+                Console.WriteLine("Searching osu! songs... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            osuMatches.ForEach(s => resultsList.Items.Add(s));
+            try
+            {
+                resultsList.SelectedIndex = 0;
+            }
+            catch { };
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            osuLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
     }

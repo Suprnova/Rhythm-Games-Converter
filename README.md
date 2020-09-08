@@ -13,7 +13,8 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Clone Hero (via [Chorus](https://chorus.fightthe.pw/))
 * maimai International Version (via [SEGA](https://maimai.sega.com/))
 * DJMAX RESPECT (via [Cypher Gate](https://cyphergate.net/))
-* GROOVE COASTER (via [groovecoaster.jp](https://groovecoaster.jp))
+* GROOVE COASTER (via [groovecoaster.jp](https://groovecoaster.jp/))
+* osu! (via [osusearch](https://osusearch.com/))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
