@@ -52,7 +52,13 @@ namespace rhythm_games_converter
             public string Artist { get; set; }
             public string BeatmapSet_ID { get; set; }
             public string Mapper { get; set; }
-
+        }
+        public class CloneSong
+        {
+            public string Name { get; set; }
+            public string Artist { get; set; }
+            public string Link { get; set; }
+            public string Charter { get; set; }
         }
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
@@ -276,7 +282,7 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
 
-                Globals.links = CloneMatching(titles, titlesUni, artists);
+                Globals.links = CloneMatching(titles, artists);
                 int i = 0;
                 using (StringReader reader = new StringReader(Globals.links))
                 {
@@ -355,7 +361,7 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
 
-                Globals.links = CloneMatching(titles, null, artists);
+                Globals.links = CloneMatching(titles, artists);
                 int i = 0;
                 using (StringReader reader = new StringReader(Globals.links))
                 {
@@ -463,7 +469,7 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
 
-                Globals.links = CloneMatching(titles, null, artists);
+                Globals.links = CloneMatching(titles, artists);
                 int i = 0;
                 using (StringReader reader = new StringReader(Globals.links))
                 {
@@ -1185,9 +1191,8 @@ namespace rhythm_games_converter
             resultsList.Visibility = Visibility.Hidden;
             return sb.ToString();
         }
-        public string CloneMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        public string CloneMatching(List<string> titles, List<string> artists)
         {
-            // need to rewrite soon to be like the osu! results
             var json = string.Empty;
             var cloneMatches = new List<string>();
             var cloneLinks = new List<string>();
@@ -1196,18 +1201,11 @@ namespace rhythm_games_converter
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                var titleUnicode = string.Empty;
-                if (titlesUni != null)
-                {
-                    titleUnicode = "\"" + titlesUni[i] + "\"";
-                }
-                else
-                {
-                    titleUnicode = "NOT AVAILABLE";
-                }
                 var artist = string.Empty;
+                bool containsArtist = false;
                 if (artists != null)
                 {
+                    containsArtist = true;
                     artist = artists[i];
                 }
                 else
@@ -1224,60 +1222,35 @@ namespace rhythm_games_converter
                 {
                     continue;
                 }
-                var parsed = JObject.Parse(json);
                 if (json.Length < 100)
                 {
                     Console.Clear();
                     Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
                     continue;
-                } 
-                string songName = parsed.First.First.First.First.Next.ToString().Replace("\"name\":", "").Replace("\"", "").Trim();
-                string songNameUpper = songName.ToUpper();
-                string titleUpper = title.ToUpper();
-                string titleUniUpper = titleUnicode.ToUpper();
-                if (songNameUpper == titleUpper)
-                {
-                    string link = string.Empty;
-                    string search = parsed.First.First.First.ToString();
-                    if (!string.IsNullOrEmpty(artist))
-                    {
-                        if (!search.Contains(artist))
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
-                            continue;
-                        }
-                    }                    
-                    if (search.Contains("\"link\":"))
-                    {
-                        int index = search.IndexOf("\"link\":");
-                        link = search.Substring(index + 9);
-                        int index2 = link.IndexOf("\"");
-                        link = link.Substring(0, index2);
-                    }
-                    cloneMatches.Add(title);
-                    cloneLinks.Add(link);
                 }
-                else if (titleUniUpper == titleUpper)
+                JObject songSearch = JObject.Parse(json);
+                IList<JToken> results = songSearch["songs"].Children().ToList();
+                IList<CloneSong> songs = new List<CloneSong>();
+                foreach(JToken result in results)
                 {
-                    string link = string.Empty;
-                    string search = parsed.First.First.First.ToString();
-                    if (!string.IsNullOrEmpty(artist))
+                    CloneSong song = result.ToObject<CloneSong>();
+                    if (song.Name.ToUpper() == title.ToUpper())
                     {
-                        if (!search.Contains(artist))
+                        if (containsArtist == true)
                         {
-                            continue;
+                            if (song.Artist.ToUpper() == artist.ToUpper())
+                            {
+                                cloneMatches.Add(song.Name + " - Charted by " + song.Charter);
+                                cloneLinks.Add(song.Link);
+                            }
+                            else { }
+                        }
+                        else
+                        {
+                            cloneMatches.Add(song.Name + " - Charted by " + song.Charter);
+                            cloneLinks.Add(song.Link);
                         }
                     }
-                    if (search.Contains("\"link\":"))
-                    {
-                        int index = search.IndexOf("\"link\":");
-                        link = search.Substring(index + 9);
-                        int index2 = link.IndexOf("\"");
-                        link = link.Substring(0, index2);
-                    }
-                    cloneMatches.Add(title);
-                    cloneLinks.Add(link);
                 }
                 Console.Clear();
                 Console.WriteLine("Searching Clone Hero songs... " + i + "/" + titles.Count);
@@ -1435,13 +1408,13 @@ namespace rhythm_games_converter
                 foreach(JToken result in results)
                 {
                     Beatmap beatmap = result.ToObject<Beatmap>();
-                    if (beatmap.Title == title)
+                    if (beatmap.Title.ToUpper() == title.ToUpper())
                     {
                         if (hasArtist == true)
                         {
-                            if (beatmap.Artist == artist)
+                            if (beatmap.Artist.ToUpper() == artist.ToUpper())
                             {
-                                osuMatches.Add(beatmap.Title);
+                                osuMatches.Add(beatmap.Title + " - Mapped by " + beatmap.Mapper);
                                 osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
                             }
                             else { }
