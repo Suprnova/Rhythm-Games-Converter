@@ -60,6 +60,17 @@ namespace rhythm_games_converter
             public string Link { get; set; }
             public string Charter { get; set; }
         }
+        public class BeatSong
+        {
+            public string Key { get; set; }
+            public MetadataList Metadata { get; set; }
+            public class MetadataList
+            {
+                public string SongName { get; set; }
+                public string SongAuthorName { get; set; }
+                public string LevelAuthorName { get; set; }
+            }
+        }
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -112,6 +123,10 @@ namespace rhythm_games_converter
             {
                 provider.Text = "osusearch";
             }
+            else if (search.SelectedIndex == 6)
+            {
+                provider.Text = "Beat Saver";
+            }
         }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
@@ -138,7 +153,7 @@ namespace rhythm_games_converter
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5))
+            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6))
             {
                 MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
                 return;
@@ -252,6 +267,35 @@ namespace rhythm_games_converter
                     }
                 }
             }
+            else if (search.SelectedIndex == 6)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = BeatSaberMatching(titles, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
+            }
         }
         private void SourceOsu()
         {
@@ -330,6 +374,35 @@ namespace rhythm_games_converter
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
                 results.Text = GrooveCoasterMatching(titles, titlesUni);
+            }
+            else if (search.SelectedIndex == 6)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = BeatSaberMatching(titles, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
             }
         }
         private void SourceStep()
@@ -421,6 +494,35 @@ namespace rhythm_games_converter
                     prov.IsEnabled = false;
 
                     Globals.links = OsuMatching(titles, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
+            }
+            else if (search.SelectedIndex == 6)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = BeatSaberMatching(titles, artists);
                     int i = 0;
                     using (StringReader reader = new StringReader(Globals.links))
                     {
@@ -1440,6 +1542,85 @@ namespace rhythm_games_converter
             App.Current.MainWindow.Show();
             FreeConsole();
             osuLinks.ForEach(s => sb.AppendLine(s));
+            return sb.ToString();
+        }
+        public string BeatSaberMatching(List<string> titles, List<string> artists)
+        {
+            var json = string.Empty;
+            var beatMatches = new List<string>();
+            var beatLinks = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Searching Beat Saber songs... ");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                var titleURL = title.Replace(" ", "%20");
+                var artist = string.Empty;
+                bool containsArtist = false;
+                if (artists != null)
+                {
+                    containsArtist = true;
+                    artist = artists[i];
+                }
+                else
+                {
+                }
+
+                try
+                {
+                    using (WebClient wc = new WebClient())
+                    {
+                        wc.Headers.Add("User-Agent: Other"); // done to avoid 403 errors
+                        json = wc.DownloadString("https://beatsaver.com/api/search/text/:page?q=" + titleURL);
+                    }
+                }
+                catch
+                {
+                    continue;
+                }
+                if (json.Length < 100)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Searching Beat Saber songs... " + i + "/" + titles.Count);
+                    continue;
+                }
+                JObject songSearch = JObject.Parse(json);
+                IList<JToken> results = songSearch["docs"].Children().ToList();
+                IList<BeatSong> songs = new List<BeatSong>();
+                foreach (JToken result in results)
+                {
+                    BeatSong song = result.ToObject<BeatSong>();
+                    if (song.Metadata.SongName.ToUpper() == title.ToUpper())
+                    {
+                        if (containsArtist == true)
+                        {
+                            if (song.Metadata.SongAuthorName.ToUpper() == artist.ToUpper())
+                            {
+                                beatMatches.Add(song.Metadata.SongName + " - Created by " + song.Metadata.LevelAuthorName);
+                                beatLinks.Add("https://beatsaver.com/beatmap/" + song.Key);
+                            }
+                            else { }
+                        }
+                        else
+                        {
+                            beatMatches.Add(song.Metadata.SongName + " - Created by " + song.Metadata.LevelAuthorName);
+                            beatLinks.Add("https://beatsaver.com/beatmap/" + song.Key);
+                        }
+                    }
+                }
+                Console.Clear();
+                Console.WriteLine("Searching Beat Saber songs... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            beatMatches.ForEach(s => resultsList.Items.Add(s));
+            try
+            {
+                resultsList.SelectedIndex = 0;
+            }
+            catch { };
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            beatLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
     }

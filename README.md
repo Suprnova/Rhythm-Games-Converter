@@ -15,6 +15,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * DJMAX RESPECT (via [Cypher Gate](https://cyphergate.net/))
 * GROOVE COASTER (via [groovecoaster.jp](https://groovecoaster.jp/))
 * osu! (via [osusearch](https://osusearch.com/))
+* Beat Saber (via [Beat Saver](https://beatsaver.com/))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
