@@ -17,7 +17,7 @@
             <ColumnDefinition Width="818*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Source game:" HorizontalAlignment="Left" Margin="24,11,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="94"/>
-        <ComboBox HorizontalAlignment="Left" Margin="134,11,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="source" SelectionChanged="SourceChanged" Grid.ColumnSpan="2">
+        <ComboBox HorizontalAlignment="Left" Margin="134,11,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="source" Grid.ColumnSpan="2">
             <ComboBoxItem>
                 <StackPanel>
                     <TextBlock Name="osusource" FontSize="14">osu!</TextBlock>

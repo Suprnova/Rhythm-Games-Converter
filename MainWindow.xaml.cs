@@ -1,30 +1,14 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using Newtonsoft.Json.Linq;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Net;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.VisualBasic.CompilerServices;
-using System.ComponentModel;
-using System.Security.Cryptography.X509Certificates;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Windows.Threading;
-using System.Runtime.InteropServices;
-using Newtonsoft.Json.Linq;
-using System.Windows.Markup;
-using Newtonsoft.Json;
 
 namespace rhythm_games_converter
 {
@@ -39,7 +23,7 @@ namespace rhythm_games_converter
             source.SelectedIndex = 0;
             search.SelectedIndex = 0;
             prov.SelectedIndex = 0;
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); //adds codepages for encoding
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // adds codepages for encoding
         }
         public static class Globals
         {
@@ -92,10 +76,6 @@ namespace rhythm_games_converter
                 Console.Clear();
                 Console.WriteLine(e.Message);
             }
-        }
-        private void SourceChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
         private void SearchChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -193,7 +173,7 @@ namespace rhythm_games_converter
             (List<string> titles, List<string> artists) = CloneFiles(dir.Text);
             foreach (string title in titles)
             {
-                if (!String.IsNullOrWhiteSpace(title))
+                if (!string.IsNullOrWhiteSpace(title))
                 {
                     sourceSongs.Items.Add(title);
                 }
@@ -302,7 +282,7 @@ namespace rhythm_games_converter
             (List<string> titles, List<string> titlesUni, List<string> artists) = OsuFiles(dir.Text);
             foreach (string title in titles)
             {
-                if (!String.IsNullOrWhiteSpace(title))
+                if (!string.IsNullOrWhiteSpace(title))
                 {
                     sourceSongs.Items.Add(title);
                 }
@@ -342,7 +322,6 @@ namespace rhythm_games_converter
                     }
                     while (line != null);
                     download.IsEnabled = true;
-
                 }
             }
             else if (search.SelectedIndex == 2)
@@ -410,7 +389,7 @@ namespace rhythm_games_converter
             (List<string> titles, List<string> artists) = StepFiles(dir.Text);
             foreach (string title in titles)
             {
-                if (!String.IsNullOrWhiteSpace(title))
+                if (!string.IsNullOrWhiteSpace(title))
                 {
                     sourceSongs.Items.Add(title);
                 }
@@ -450,7 +429,6 @@ namespace rhythm_games_converter
                     }
                     while (line != null);
                     download.IsEnabled = true;
-
                 }
             }
             else if (search.SelectedIndex == 2)
@@ -547,7 +525,7 @@ namespace rhythm_games_converter
             (List<string> titles, List<string> artists) = BeatSaberFiles(dir.Text);
             foreach (string title in titles)
             {
-                if (!String.IsNullOrWhiteSpace(title))
+                if (!string.IsNullOrWhiteSpace(title))
                 {
                     sourceSongs.Items.Add(title);
                 }
@@ -587,7 +565,6 @@ namespace rhythm_games_converter
                     }
                     while (line != null);
                     download.IsEnabled = true;
-
                 }
             }
             else if (search.SelectedIndex == 2)
@@ -661,12 +638,12 @@ namespace rhythm_games_converter
                 }
                 return page;
             }
-            else //must be a bemaniwiki page encoded in EUC-JP, not UTF8
+            else // must be a bemaniwiki page encoded in EUC-JP, not UTF8
             {
                 string page = string.Empty;
                 HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
                 HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
-                using (StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding( "EUC-JP" )))
+                using (StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding("EUC-JP")))
                 {
                     page = sr.ReadToEnd();
                 }
@@ -692,24 +669,22 @@ namespace rhythm_games_converter
                 {
                     if (line.Contains("name")) // title saved
                     {
-                        var text = line.Replace("name", "");
-                        var text2 = text.Replace("=", "");
+                        var text = line.Replace("name", string.Empty);
+                        var text2 = text.Replace("=", string.Empty);
                         result = text2.Trim();
                     }
                     else if (line.Contains("artist"))
                     {
-                        var text = line.Replace("artist", "");
-                        var text2 = text.Replace("=", "");
+                        var text = line.Replace("artist", string.Empty);
+                        var text2 = text.Replace("=", string.Empty);
                         resultArtist = text2.Trim();
                     }
-                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    else if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(resultArtist)) // title and artist filled, move on
                     {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
                             artists.Add(resultArtist);
-
-                            //goto nextfile;\
                             break;
                         }
                         else { break; }
@@ -738,26 +713,24 @@ namespace rhythm_games_converter
                 {
                     if (line.Contains("\"_songName\":")) // title saved
                     {
-                        var text = line.Replace("\"_songName\": ", "");
-                        var text2 = text.Replace("\"", "");
+                        var text = line.Replace("\"_songName\": ", string.Empty);
+                        var text2 = text.Replace("\"", string.Empty);
                         result = text2.Trim(',');
                         result = result.Trim();
                     }
                     else if (line.Contains("\"_songAuthorName\":")) // title saved
                     {
-                        var text = line.Replace("\"_songAuthorName\": ", "");
-                        var text2 = text.Replace("\"", "");
+                        var text = line.Replace("\"_songAuthorName\": ", string.Empty);
+                        var text2 = text.Replace("\"", string.Empty);
                         resultArtist = text2.Trim(',');
                         resultArtist = resultArtist.Trim();
                     }
-                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    else if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(resultArtist)) // title and artist filled, move on
                     {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
                             artists.Add(resultArtist);
-
-                            //goto nextfile;\
                             break;
                         }
                         else { break; }
@@ -776,18 +749,15 @@ namespace rhythm_games_converter
             var titles = new List<string>();
             var titlesUni = new List<string>();
             var artists = new List<string>();
-            string result = String.Empty;
-            string resultUni = String.Empty;
-            string artist = String.Empty;
             int i = 0;
             foreach (string file in files)
             {
                 i++;
                 var lines = File.ReadAllLines(file);
 
-                result = string.Empty;
-                resultUni = string.Empty;
-                artist = string.Empty;
+                string result = string.Empty;
+                string resultUni = string.Empty;
+                string artist = string.Empty;
                 foreach (var line in lines)
                 {
                     if (line.Length == 0)
@@ -796,27 +766,27 @@ namespace rhythm_games_converter
                     }
                     if (line.Contains("Title:")) // title saved
                     {
-                        var text = line.Replace("Title:", "");
+                        var text = line.Replace("Title:", string.Empty);
                         if (text.Contains("(TV Size)"))
                         {
-                            text = text.Replace("(TV Size)", "");
+                            text = text.Replace("(TV Size)", string.Empty);
                         }
                         if (text.Contains("（TV Size）"))
                         {
-                            text = text.Replace("（TV Size）", "");
+                            text = text.Replace("（TV Size）", string.Empty);
                         }
                         result = text.Trim();
                     }
                     else if (line.Contains("TitleUnicode:")) // unicode title saved
                     {
-                        var textUni = line.Replace("TitleUnicode:", "");
+                        var textUni = line.Replace("TitleUnicode:", string.Empty);
                         if (textUni.Contains("(TV Size)"))
                         {
-                            textUni = textUni.Replace("(TV Size)", "");
+                            textUni = textUni.Replace("(TV Size)", string.Empty);
                         }
                         if (textUni.Contains("（TV Size）"))
                         {
-                            textUni = textUni.Replace("（TV Size）", "");
+                            textUni = textUni.Replace("（TV Size）", string.Empty);
                         }
                         resultUni = textUni.Trim();
                         if (resultUni == string.Empty)
@@ -826,23 +796,21 @@ namespace rhythm_games_converter
                     }
                     else if (line.Contains("Artist:"))
                     {
-                        artist = line.Replace("Artist:", "");
+                        artist = line.Replace("Artist:", string.Empty);
                         artist = artist.Trim();
                     }
-                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultUni) && !String.IsNullOrWhiteSpace(artist)) //title and unicode title filled, move on
+                    else if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(resultUni) && !string.IsNullOrWhiteSpace(artist)) // title and unicode title filled, move on
                     {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
                             titlesUni.Add(resultUni);
                             artists.Add(artist);
-
-                            //goto nextfile;\
                             break;
                         }
                         else { break; }
                     }
-                ////no match, next line
+                // no match, next line
                 } // loops to line
                 Console.WriteLine("Indexing osu! files... " + i + "/" + files.Length);
             } // loops to file
@@ -867,22 +835,20 @@ namespace rhythm_games_converter
                 {
                     if (line.Contains("#TITLE:")) // title saved
                     {
-                        var text = line.Replace("#TITLE:", "");
+                        var text = line.Replace("#TITLE:", string.Empty);
                         result = text.Trim(';');
                     }
                     else if (line.Contains("#ARTIST:"))
                     {
-                        var text = line.Replace("#ARTIST:", "");
+                        var text = line.Replace("#ARTIST:", string.Empty);
                         resultArtist = text.Trim(';');
                     }
-                    else if (!String.IsNullOrWhiteSpace(result) && !String.IsNullOrWhiteSpace(resultArtist)) //title and artist filled, move on
+                    else if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(resultArtist)) // title and artist filled, move on
                     {
                         if (!titles.Contains(result))
                         {
                             titles.Add(result);
                             artists.Add(resultArtist);
-
-                            //goto nextfile;\
                             break;
                         }
                         else { break; }
@@ -907,7 +873,7 @@ namespace rhythm_games_converter
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                var titleUnicode = String.Empty;
+                var titleUnicode = string.Empty;
                 if (titlesUni != null)
                 {
                     titleUnicode = titlesUni[i];
@@ -918,15 +884,16 @@ namespace rhythm_games_converter
                 }
                 string songBracket = ">" + title.ToUpper() + "<";
                 string songBracketUnicode = string.Empty;
+                bool containsUnicode = false;
                 if (titlesUni != null)
                 {
                     songBracketUnicode = ">" + titlesUni[i].ToUpper() + "<";
+                    containsUnicode = true;
                 }
                 else
                 {
                     songBracketUnicode = ">N/A<";
                 }
-                bool containsUnicode = !songBracketUnicode.Contains(">N/A<");
                 if (gcPage.Contains(songBracket))
                 {
                     matches.Add(title);
@@ -962,7 +929,7 @@ namespace rhythm_games_converter
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                var titleUnicode = String.Empty;
+                var titleUnicode = string.Empty;
                 if (titlesUni != null)
                 {
                     titleUnicode = titlesUni[i];
@@ -1086,10 +1053,10 @@ namespace rhythm_games_converter
             var matchesMUSECA = new List<string>();
             Console.Clear();
             Console.WriteLine("\nFinding matches...");
-            for (var i = 0; i<titles.Count; i++)
+            for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                var titleUnicode = String.Empty;
+                var titleUnicode = string.Empty;
                 if (titlesUni != null)
                 {
                     titleUnicode = titlesUni[i];
@@ -1123,33 +1090,28 @@ namespace rhythm_games_converter
                 if (pmPage.Contains(songBracket) || pmPage2.Contains(songBracket))
                 {
                     matchesPM.Add(title);
-
                 }
                 else if (containsUnicode == true)
                 {
                     if (pmPage.Contains(songBracketUnicode) || pmPage2.Contains(songBracketUnicode))
                     {
                         matchesPM.Add(titleUnicode + " - (" + title + ")");
-
                     }
                 }
                 if (DDRPage.Contains(songBracket) || DDRPage2.Contains(songBracket))
                 {
                     matchesDDR.Add(title);
-
                 }
                 else if (containsUnicode == true)
                 {
                     if (DDRPage.Contains(songBracketUnicode) || DDRPage2.Contains(songBracketUnicode))
                     {
                         matchesDDR.Add(titleUnicode + " - (" + title + ")");
-
                     }
                 }
                 if (GDPage.Contains(songBracket) || GDPage2.Contains(songBracket) || GDPage3.Contains(songBracket))
                 {
                     matchesGD.Add(title);
-
                 }
                 else if (containsUnicode == true)
                 {
@@ -1333,7 +1295,7 @@ namespace rhythm_games_converter
                 JObject songSearch = JObject.Parse(json);
                 IList<JToken> results = songSearch["songs"].Children().ToList();
                 IList<CloneSong> songs = new List<CloneSong>();
-                foreach(JToken result in results)
+                foreach (JToken result in results)
                 {
                     CloneSong song = result.ToObject<CloneSong>();
                     if (song.Name.ToUpper() == title.ToUpper())
@@ -1363,7 +1325,8 @@ namespace rhythm_games_converter
             {
                 resultsList.SelectedIndex = 0;
             }
-            catch { };
+            catch
+            { }
             App.Current.MainWindow.Show();
             FreeConsole();
             cloneLinks.ForEach(s => sb.AppendLine(s));
@@ -1371,7 +1334,7 @@ namespace rhythm_games_converter
         }
         public string MaiMaiMatching(List<string> titles, List<string> titlesUni)
         {
-            var json = String.Empty;
+            var json = string.Empty;
             var maimaiMatches = new List<string>();
             if (titlesUni == null)
             {
@@ -1398,11 +1361,11 @@ namespace rhythm_games_converter
                 if (json.Contains(title))
                 {
 
-                    maimaiMatches.Add(title.Replace("\"", ""));
+                    maimaiMatches.Add(title.Replace("\"", string.Empty));
                 }
                 else if (json.Contains(titleUnicode))
                 {
-                    maimaiMatches.Add(titleUnicode.Replace("\"", "") + " - (" + title.Replace("\"","") + ")");
+                    maimaiMatches.Add(titleUnicode.Replace("\"", string.Empty) + " - (" + title.Replace("\"", string.Empty) + ")");
                 }
             }
             var sb = new StringBuilder(4096);
@@ -1507,7 +1470,7 @@ namespace rhythm_games_converter
                 JObject beatmapSearch = JObject.Parse(json);
                 IList<JToken> results = beatmapSearch["beatmaps"].Children().ToList();
                 IList<Beatmap> beatmaps = new List<Beatmap>();
-                foreach(JToken result in results)
+                foreach (JToken result in results)
                 {
                     Beatmap beatmap = result.ToObject<Beatmap>();
                     if (beatmap.Title.ToUpper() == title.ToUpper())
@@ -1538,7 +1501,8 @@ namespace rhythm_games_converter
             {
                 resultsList.SelectedIndex = 0;
             }
-            catch { };
+            catch
+            { }
             App.Current.MainWindow.Show();
             FreeConsole();
             osuLinks.ForEach(s => sb.AppendLine(s));
@@ -1617,7 +1581,8 @@ namespace rhythm_games_converter
             {
                 resultsList.SelectedIndex = 0;
             }
-            catch { };
+            catch
+            { }
             App.Current.MainWindow.Show();
             FreeConsole();
             beatLinks.ForEach(s => sb.AppendLine(s));
