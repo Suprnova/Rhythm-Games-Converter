@@ -5,11 +5,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>rhythm_games_converter</RootNamespace>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>RGC.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0-beta.11" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0-beta.11" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
   </ItemGroup>
 

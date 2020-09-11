@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using Ookii.Dialogs.Wpf;
+using SpotifyAPI.Web;
+using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -108,6 +111,21 @@ namespace rhythm_games_converter
                 provider.Text = "Beat Saver";
             }
         }
+        private void SourceChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (source.SelectedIndex == 4)
+            {
+                dirText.Visibility = Visibility.Hidden;
+                urlText.Visibility = Visibility.Visible;
+                browse.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                urlText.Visibility = Visibility.Hidden;
+                dirText.Visibility = Visibility.Visible;
+                browse.Visibility = Visibility.Visible;
+            }
+        }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
         {
@@ -123,15 +141,21 @@ namespace rhythm_games_converter
             try
             {
                 string webpage = Globals.linksFinal[resultsList.SelectedIndex];
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.CreateNoWindow = true;
+                startInfo.FileName = "cmd.exe";
                 string command = "start " + webpage;
-                System.Diagnostics.Process.Start(@"cmd", @"/c " + command);
+                startInfo.Arguments = "/c" + command;
+                process.StartInfo = startInfo;
+                process.Start();
             }
             catch (System.IndexOutOfRangeException)
             {
                 return;
             }
         }
-        private void Search_Click(object sender, RoutedEventArgs e)
+        private async void Search_Click(object sender, RoutedEventArgs e)
         {
             if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6))
             {
@@ -161,11 +185,182 @@ namespace rhythm_games_converter
                 {
                     SourceBeatSaber();
                 }
+                else
+                {
+                    MessageBox.Show("That is not a valid directory or link.", "Error");
+                }
+            }
+            else if (dir.Text.Contains("open.spotify.com/playlist/") && dir.Text.Contains("?si="))
+            {
+                await SourceSpotify();
             }
             else
             {
-                MessageBox.Show("The directory provided is invalid.", "Error");
-                return;
+                if (!(source.SelectedIndex == 4))
+                {
+                    MessageBox.Show("The directory provided is invalid.", "Error");
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("The URL provided is not a Spotify playlist link.", "Error");
+                    return;
+                }
+            }
+        }
+        private async Task SourceSpotify()
+        {
+            App.Current.MainWindow.Hide();
+            AllocConsole();
+            Console.Title = "Rhythm Games Converter";
+            Console.WriteLine("Indexing Spotify songs...");
+            string playlistURL = dir.Text;
+            int index = playlistURL.IndexOf("playlist/");
+            playlistURL = playlistURL.Substring(index + 9);
+            int indexEnd = playlistURL.IndexOf("?si=");
+            playlistURL = playlistURL.Remove(indexEnd);
+            var config = SpotifyClientConfig.CreateDefault();
+            var request = new ClientCredentialsRequest("9c3de2315145490fb67ca0c1a26cefa4", "ff5ca8d5c4234d7691ab02b1909c7043");
+            var response = await new OAuthClient(config).RequestToken(request);
+            var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
+            var playlist = await spotify.Playlists.GetItems(playlistURL);
+            var allOfPlaylist = await spotify.PaginateAll(playlist);
+            var songs = new List<string>();
+            var artists = new List<string>();
+            foreach (PlaylistTrack<IPlayableItem> item in allOfPlaylist)
+            {
+                if (item.Track is FullTrack track)
+                {
+                    songs.Add(track.Name);
+                    string artist = track.Artists.First().Name;
+                    artists.Add(artist);
+                    sourceSongs.Items.Add(track.Name + " by " + artist);
+                }
+            }
+            if (search.SelectedIndex == 0)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = BEMANIMatching(songs, null);
+            }
+            else if (search.SelectedIndex == 1)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+
+                Globals.links = CloneMatching(songs, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.linksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
+            else if (search.SelectedIndex == 2)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = MaiMaiMatching(songs, null);
+            }
+            else if (search.SelectedIndex == 3)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = DJMAXMatching(songs, null, artists);
+            }
+            else if (search.SelectedIndex == 4)
+            {
+                searchBtn.IsEnabled = false;
+                source.IsEnabled = false;
+                search.IsEnabled = false;
+                dir.IsEnabled = false;
+                browse.IsEnabled = false;
+                prov.IsEnabled = false;
+                results.Text = GrooveCoasterMatching(songs, null);
+            }
+            else if (search.SelectedIndex == 5)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = OsuMatching(songs, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
+            }
+            else if (search.SelectedIndex == 6)
+            {
+                {
+                    searchBtn.IsEnabled = false;
+                    source.IsEnabled = false;
+                    search.IsEnabled = false;
+                    dir.IsEnabled = false;
+                    browse.IsEnabled = false;
+                    prov.IsEnabled = false;
+
+                    Globals.links = BeatSaberMatching(songs, artists);
+                    int i = 0;
+                    using (StringReader reader = new StringReader(Globals.links))
+                    {
+                        string line = string.Empty;
+                        do
+                        {
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                Globals.linksFinal[i] = line;
+                                i++;
+                            }
+                        }
+                        while (line != null);
+                        download.IsEnabled = true;
+                    }
+                }
             }
         }
         private void SourceClone()
@@ -206,7 +401,7 @@ namespace rhythm_games_converter
                 dir.IsEnabled = false;
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
-                results.Text = DJMAXMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
@@ -342,7 +537,7 @@ namespace rhythm_games_converter
                 dir.IsEnabled = false;
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
-                results.Text = DJMAXMatching(titles, titlesUni);
+                results.Text = DJMAXMatching(titles, titlesUni, artists);
             }
             else if (search.SelectedIndex == 4)
             {
@@ -449,7 +644,7 @@ namespace rhythm_games_converter
                 dir.IsEnabled = false;
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
-                results.Text = DJMAXMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
@@ -585,7 +780,7 @@ namespace rhythm_games_converter
                 dir.IsEnabled = false;
                 browse.IsEnabled = false;
                 prov.IsEnabled = false;
-                results.Text = DJMAXMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
@@ -654,6 +849,7 @@ namespace rhythm_games_converter
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
+            Console.Title = "Rhythm Games Converter";
             Console.WriteLine("Indexing Clone Hero files...");
             string[] files = Directory.GetFiles(directory, "*.ini", SearchOption.AllDirectories);
             var titles = new List<string>();
@@ -698,6 +894,7 @@ namespace rhythm_games_converter
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
+            Console.Title = "Rhythm Games Converter";
             Console.WriteLine("Indexing Beat Saber files...");
             string[] files = Directory.GetFiles(directory, "info.dat", SearchOption.AllDirectories);
             var titles = new List<string>();
@@ -744,6 +941,7 @@ namespace rhythm_games_converter
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
+            Console.Title = "Rhythm Games Converter";
             Console.WriteLine("Indexing osu! files...");
             string[] files = Directory.GetFiles(directory, "*.osu", SearchOption.AllDirectories);
             var titles = new List<string>();
@@ -820,6 +1018,7 @@ namespace rhythm_games_converter
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
+            Console.Title = "Rhythm Games Converter";
             Console.WriteLine("Indexing Stepmania files...");
             string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
             var titles = new List<string>();
@@ -918,7 +1117,7 @@ namespace rhythm_games_converter
             }
             return sb.ToString();
         }
-        public string DJMAXMatching(List<string> titles, List<string> titlesUni)
+        public string DJMAXMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var matches = new List<string>();
             Console.Clear();
@@ -938,8 +1137,20 @@ namespace rhythm_games_converter
                 {
                     titleUnicode = "NOT AVAILABLE";
                 }
+                var artist = string.Empty;
+                bool containsArtist = false;
+                if (artists != null)
+                {
+                    containsArtist = true;
+                    artist = artists[i];
+                }
+                else
+                {
+                }
                 string songBracket = ">" + title.ToUpper() + "<";
                 string songBracketUnicode = string.Empty;
+                string artistBracket = string.Empty;
+                // dont ask why i repeated these methods i dont know and i dont care to fix them
                 if (titlesUni != null)
                 {
                     songBracketUnicode = ">" + titlesUni[i].ToUpper() + "<";
@@ -948,16 +1159,41 @@ namespace rhythm_games_converter
                 {
                     songBracketUnicode = ">N/A<";
                 }
+                if (artists != null)
+                {
+                    artistBracket = ">" + artists[i].ToUpper() + "<";
+                }
                 bool containsUnicode = !songBracketUnicode.Contains(">N/A<");
                 if (djmaxPage.Contains(songBracket))
                 {
-                    matches.Add(title);
+                    if (containsArtist == true)
+                    {
+                        if (djmaxPage.Contains(artistBracket))
+                        {
+                            matches.Add(title + " by " + artist);
+                        }
+                    }
+                    else
+                    {
+                        matches.Add(title);
+                    }
                 }
                 else if (containsUnicode == true)
                 {
+
                     if (djmaxPage.Contains(songBracketUnicode))
                     {
-                        matches.Add(titleUnicode + " - (" + title + ")");
+                        if (containsArtist == true)
+                        {
+                            if (djmaxPage.Contains(artistBracket))
+                            {
+                                matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                            }
+                        }
+                        else
+                        {
+                            matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                        }                            
                     }
                 }
             }

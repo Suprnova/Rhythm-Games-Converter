@@ -17,7 +17,7 @@
             <ColumnDefinition Width="818*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Source game:" HorizontalAlignment="Left" Margin="24,11,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="94"/>
-        <ComboBox HorizontalAlignment="Left" Margin="134,11,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="source" Grid.ColumnSpan="2">
+        <ComboBox HorizontalAlignment="Left" Margin="134,11,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="source" Grid.ColumnSpan="2" SelectionChanged="SourceChanged">
             <ComboBoxItem>
                 <StackPanel>
                     <TextBlock Name="osusource" FontSize="14">osu!</TextBlock>
@@ -36,6 +36,11 @@
             <ComboBoxItem>
                 <StackPanel>
                     <TextBlock Name="beatsabersource" FontSize="14">Beat Saber</TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock Name="spotifysource" FontSize="14">Spotify</TextBlock>
                 </StackPanel>
             </ComboBoxItem>
         </ComboBox>
@@ -77,9 +82,10 @@
                 </StackPanel>
             </ComboBoxItem>
         </ComboBox>
-        <Label Content="Songs directory:" HorizontalAlignment="Left" Margin="163,10,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
+        <Label Content="Songs directory:" Name="dirText" HorizontalAlignment="Left" Margin="162,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
+        <Label Content="Playlist URL:" Name="urlText" HorizontalAlignment="Left" Margin="188,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109" Visibility="Hidden"/>
         <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="296,10,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="236" FontSize="14" Name="dir"/>
-        <Label Content="Provider:&#xD;&#xA;" Grid.Column="1" HorizontalAlignment="Left" Margin="207,10,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Grid.Row="1" Width="64"/>
+        <Label Content="Provider:&#xD;&#xA;" Grid.Column="1" HorizontalAlignment="Left" Margin="207,9,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Grid.Row="1" Width="64"/>
         <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="296,10,0,0" VerticalAlignment="Top" Width="236" Height="25" Grid.Row="1" Name="prov">
             <ComboBoxItem>
                 <StackPanel>
