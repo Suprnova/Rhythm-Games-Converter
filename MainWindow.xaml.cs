@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Ookii.Dialogs.Wpf;
 using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
 using System;
 using System.Collections.Generic;
 using System.IO;
