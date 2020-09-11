@@ -1,4 +1,7 @@
-![Logo](https://cdn.discordapp.com/attachments/603730493074046978/754078142620106792/logo_scaled.png)
+<p align="center">
+  <img width="500px" src="https://cdn.discordapp.com/attachments/603730493074046978/754077808992714762/RGC.png">
+</p>
+
 # Rhythm Games Converter
 This tool is designed for you to find songs in your rhythm game's songs that is also in another rhythm game.
 For example, you can search for BEMANI songs that are also in your osu! songs folder.
