@@ -220,7 +220,7 @@ namespace rhythm_games_converter
             int indexEnd = playlistURL.IndexOf("?si=");
             playlistURL = playlistURL.Remove(indexEnd);
             var config = SpotifyClientConfig.CreateDefault();
-            var request = new ClientCredentialsRequest("9c3de2315145490fb67ca0c1a26cefa4", "ff5ca8d5c4234d7691ab02b1909c7043");
+            var request = new ClientCredentialsRequest("<REDACTED>", "<REDACTED>");
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
             var playlist = await spotify.Playlists.GetItems(playlistURL);
