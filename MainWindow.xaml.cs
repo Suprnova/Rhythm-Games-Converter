@@ -1,23 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
-using Ookii.Dialogs.Wpf;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-
-namespace rhythm_games_converter
+﻿namespace rhythm_games_converter
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Runtime.InteropServices;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Windows;
+    using System.Windows.Controls;
+    using Newtonsoft.Json.Linq;
+    using Ookii.Dialogs.Wpf;
+    using SpotifyAPI.Web;
+
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -28,36 +24,51 @@ namespace rhythm_games_converter
             prov.SelectedIndex = 0;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // adds codepages for encoding
         }
+
         public static class Globals
         {
-            public static string links = string.Empty;
-            public static string[] linksFinal = new string[100000];
+            public static string Links = string.Empty;
+            public static string[] LinksFinal = new string[100000];
         }
+
         public class Beatmap
         {
             public string Title { get; set; }
+
             public string Artist { get; set; }
+
             public string BeatmapSet_ID { get; set; }
+
             public string Mapper { get; set; }
         }
+
         public class CloneSong
         {
             public string Name { get; set; }
+
             public string Artist { get; set; }
+
             public string Link { get; set; }
+
             public string Charter { get; set; }
         }
+
         public class BeatSong
         {
             public string Key { get; set; }
+
             public MetadataList Metadata { get; set; }
+
             public class MetadataList
             {
                 public string SongName { get; set; }
+
                 public string SongAuthorName { get; set; }
+
                 public string LevelAuthorName { get; set; }
             }
         }
+
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -80,6 +91,7 @@ namespace rhythm_games_converter
                 Console.WriteLine(e.Message);
             }
         }
+
         private void SearchChanged(object sender, SelectionChangedEventArgs e)
         {
             if (search.SelectedIndex == 0)
@@ -111,6 +123,7 @@ namespace rhythm_games_converter
                 provider.Text = "Beat Saver";
             }
         }
+
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
         {
             if (source.SelectedIndex == 4)
@@ -140,7 +153,7 @@ namespace rhythm_games_converter
         {
             try
             {
-                string webpage = Globals.linksFinal[resultsList.SelectedIndex];
+                string webpage = Globals.LinksFinal[resultsList.SelectedIndex];
                 System.Diagnostics.Process process = new System.Diagnostics.Process();
                 System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
                 startInfo.CreateNoWindow = true;
@@ -155,6 +168,7 @@ namespace rhythm_games_converter
                 return;
             }
         }
+
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
             if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6))
@@ -208,6 +222,17 @@ namespace rhythm_games_converter
                 }
             }
         }
+
+        private void DisableButtons()
+        {
+            searchBtn.IsEnabled = false;
+            source.IsEnabled = false;
+            search.IsEnabled = false;
+            dir.IsEnabled = false;
+            browse.IsEnabled = false;
+            prov.IsEnabled = false;
+        }
+
         private async Task SourceSpotify()
         {
             App.Current.MainWindow.Hide();
@@ -220,7 +245,7 @@ namespace rhythm_games_converter
             int indexEnd = playlistURL.IndexOf("?si=");
             playlistURL = playlistURL.Remove(indexEnd);
             var config = SpotifyClientConfig.CreateDefault();
-            var request = new ClientCredentialsRequest("9c3de2315145490fb67ca0c1a26cefa4", "ff5ca8d5c4234d7691ab02b1909c7043");
+            var request = new ClientCredentialsRequest("<REDACTED>", "<REDACTED>");
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
             var playlist = await spotify.Playlists.GetItems(playlistURL);
@@ -237,28 +262,18 @@ namespace rhythm_games_converter
                     sourceSongs.Items.Add(track.Name + " by " + artist);
                 }
             }
+
             if (search.SelectedIndex == 0)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = BEMANIMatching(songs, null);
             }
             else if (search.SelectedIndex == 1)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
-
-                Globals.links = CloneMatching(songs, artists);
+                DisableButtons();
+                Globals.Links = CloneMatching(songs, artists);
                 int i = 0;
-                using (StringReader reader = new StringReader(Globals.links))
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
                     string line = string.Empty;
                     do
@@ -266,7 +281,7 @@ namespace rhythm_games_converter
                         line = reader.ReadLine();
                         if (line != null)
                         {
-                            Globals.linksFinal[i] = line;
+                            Globals.LinksFinal[i] = line;
                             i++;
                         }
                     }
@@ -276,93 +291,63 @@ namespace rhythm_games_converter
             }
             else if (search.SelectedIndex == 2)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = MaiMaiMatching(songs, null);
             }
             else if (search.SelectedIndex == 3)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = DJMAXMatching(songs, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = GrooveCoasterMatching(songs, null);
             }
             else if (search.SelectedIndex == 5)
-            {
+            {                
+                DisableButtons();
+                Globals.Links = OsuMatching(songs, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = OsuMatching(songs, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }                
             }
             else if (search.SelectedIndex == 6)
-            {
+            {                
+                DisableButtons();
+                Globals.Links = BeatSaberMatching(songs, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = BeatSaberMatching(songs, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }               
             }
         }
+
         private void SourceClone()
         {
             (List<string> titles, List<string> artists) = CloneFiles(dir.Text);
@@ -375,103 +360,68 @@ namespace rhythm_games_converter
             }
             if (search.SelectedIndex == 0)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = BEMANIMatching(titles, null);
             }
             else if (search.SelectedIndex == 2)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = MaiMaiMatching(titles, null);
             }
             else if (search.SelectedIndex == 3)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = GrooveCoasterMatching(titles, null);
             }
             else if (search.SelectedIndex == 5)
-            {
+            {               
+                DisableButtons();
+                Globals.Links = OsuMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = OsuMatching(titles, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }               
             }
             else if (search.SelectedIndex == 6)
-            {
+            {                
+                DisableButtons();
+                Globals.Links = BeatSaberMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = BeatSaberMatching(titles, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }               
             }
         }
+
         private void SourceOsu()
         {
             (List<string> titles, List<string> titlesUni, List<string> artists) = OsuFiles(dir.Text);
@@ -484,26 +434,15 @@ namespace rhythm_games_converter
             }
             if (search.SelectedIndex == 0)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = BEMANIMatching(titles, titlesUni);
             }
             else if (search.SelectedIndex == 1)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
-
-                Globals.links = CloneMatching(titles, artists);
+                DisableButtons();
+                Globals.Links = CloneMatching(titles, artists);
                 int i = 0;
-                using (StringReader reader = new StringReader(Globals.links))
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
                     string line = string.Empty;
                     do
@@ -511,7 +450,7 @@ namespace rhythm_games_converter
                         line = reader.ReadLine();
                         if (line != null)
                         {
-                            Globals.linksFinal[i] = line;
+                            Globals.LinksFinal[i] = line;
                             i++;
                         }
                     }
@@ -521,64 +460,42 @@ namespace rhythm_games_converter
             }
             else if (search.SelectedIndex == 2)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = MaiMaiMatching(titles, titlesUni);
             }
             else if (search.SelectedIndex == 3)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = DJMAXMatching(titles, titlesUni, artists);
             }
             else if (search.SelectedIndex == 4)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = GrooveCoasterMatching(titles, titlesUni);
             }
             else if (search.SelectedIndex == 6)
-            {
+            {                
+                DisableButtons();
+                Globals.Links = BeatSaberMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = BeatSaberMatching(titles, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }               
             }
         }
+
         private void SourceStep()
         {
             (List<string> titles, List<string> artists) = StepFiles(dir.Text);
@@ -591,26 +508,15 @@ namespace rhythm_games_converter
             }
             if (search.SelectedIndex == 0)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = BEMANIMatching(titles, null);
             }
             else if (search.SelectedIndex == 1)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
-
-                Globals.links = CloneMatching(titles, artists);
+                DisableButtons();
+                Globals.Links = CloneMatching(titles, artists);
                 int i = 0;
-                using (StringReader reader = new StringReader(Globals.links))
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
                     string line = string.Empty;
                     do
@@ -618,7 +524,7 @@ namespace rhythm_games_converter
                         line = reader.ReadLine();
                         if (line != null)
                         {
-                            Globals.linksFinal[i] = line;
+                            Globals.LinksFinal[i] = line;
                             i++;
                         }
                     }
@@ -628,93 +534,63 @@ namespace rhythm_games_converter
             }
             else if (search.SelectedIndex == 2)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = MaiMaiMatching(titles, null);
             }
             else if (search.SelectedIndex == 3)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = GrooveCoasterMatching(titles, null);
             }
             else if (search.SelectedIndex == 5)
-            {
+            {               
+                DisableButtons();
+                Globals.Links = OsuMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = OsuMatching(titles, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }               
             }
             else if (search.SelectedIndex == 6)
-            {
+            {               
+                DisableButtons();
+                Globals.Links = BeatSaberMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
-                    searchBtn.IsEnabled = false;
-                    source.IsEnabled = false;
-                    search.IsEnabled = false;
-                    dir.IsEnabled = false;
-                    browse.IsEnabled = false;
-                    prov.IsEnabled = false;
-
-                    Globals.links = BeatSaberMatching(titles, artists);
-                    int i = 0;
-                    using (StringReader reader = new StringReader(Globals.links))
+                    string line = string.Empty;
+                    do
                     {
-                        string line = string.Empty;
-                        do
+                        line = reader.ReadLine();
+                        if (line != null)
                         {
-                            line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                Globals.linksFinal[i] = line;
-                                i++;
-                            }
+                            Globals.LinksFinal[i] = line;
+                            i++;
                         }
-                        while (line != null);
-                        download.IsEnabled = true;
                     }
-                }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }                
             }
         }
+
         private void SourceBeatSaber()
         {
             (List<string> titles, List<string> artists) = BeatSaberFiles(dir.Text);
@@ -727,26 +603,15 @@ namespace rhythm_games_converter
             }
             if (search.SelectedIndex == 0)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = BEMANIMatching(titles, null);
             }
             else if (search.SelectedIndex == 1)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
-
-                Globals.links = CloneMatching(titles, artists);
+                DisableButtons();
+                Globals.Links = CloneMatching(titles, artists);
                 int i = 0;
-                using (StringReader reader = new StringReader(Globals.links))
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
                     string line = string.Empty;
                     do
@@ -754,7 +619,7 @@ namespace rhythm_games_converter
                         line = reader.ReadLine();
                         if (line != null)
                         {
-                            Globals.linksFinal[i] = line;
+                            Globals.LinksFinal[i] = line;
                             i++;
                         }
                     }
@@ -764,46 +629,25 @@ namespace rhythm_games_converter
             }
             else if (search.SelectedIndex == 2)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = MaiMaiMatching(titles, null);
             }
             else if (search.SelectedIndex == 3)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 4)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
+                DisableButtons();
                 results.Text = GrooveCoasterMatching(titles, null);
             }
             else if (search.SelectedIndex == 5)
             {
-                searchBtn.IsEnabled = false;
-                source.IsEnabled = false;
-                search.IsEnabled = false;
-                dir.IsEnabled = false;
-                browse.IsEnabled = false;
-                prov.IsEnabled = false;
-
-                Globals.links = OsuMatching(titles, artists);
+                DisableButtons();
+                Globals.Links = OsuMatching(titles, artists);
                 int i = 0;
-                using (StringReader reader = new StringReader(Globals.links))
+                using (StringReader reader = new StringReader(Globals.Links))
                 {
                     string line = string.Empty;
                     do
@@ -811,7 +655,7 @@ namespace rhythm_games_converter
                         line = reader.ReadLine();
                         if (line != null)
                         {
-                            Globals.linksFinal[i] = line;
+                            Globals.LinksFinal[i] = line;
                             i++;
                         }
                     }
@@ -820,13 +664,14 @@ namespace rhythm_games_converter
                 }
             }
         }
+
         public static string ScrapePage(string webpage, bool utf8)
         {
             if (utf8 == true)
             {
                 string page = string.Empty;
-                HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
-                HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(webpage);
+                HttpWebResponse res = (HttpWebResponse)req.GetResponse();
                 using (StreamReader sr = new StreamReader(res.GetResponseStream()))
                 {
                     page = sr.ReadToEnd();
@@ -836,8 +681,8 @@ namespace rhythm_games_converter
             else // must be a bemaniwiki page encoded in EUC-JP, not UTF8
             {
                 string page = string.Empty;
-                HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(webpage);
-                HttpWebResponse res = (HttpWebResponse)Req.GetResponse();
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(webpage);
+                HttpWebResponse res = (HttpWebResponse)req.GetResponse();
                 using (StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.GetEncoding("EUC-JP")))
                 {
                     page = sr.ReadToEnd();
@@ -845,6 +690,7 @@ namespace rhythm_games_converter
                 return page;
             }
         }
+
         public (List<string> titles, List<string> artists) CloneFiles(string directory)
         {
             App.Current.MainWindow.Hide();
@@ -883,13 +729,17 @@ namespace rhythm_games_converter
                             artists.Add(resultArtist);
                             break;
                         }
-                        else { break; }
+                        else 
+                        { 
+                            break; 
+                        }
                     }
                 }
                 Console.WriteLine("Indexing Clone Hero files... " + i + "/" + files.Length);
             }
             return (titles, artists);
         }
+
         public (List<string> titles, List<string> artists) BeatSaberFiles(string directory)
         {
             App.Current.MainWindow.Hide();
@@ -930,13 +780,17 @@ namespace rhythm_games_converter
                             artists.Add(resultArtist);
                             break;
                         }
-                        else { break; }
+                        else 
+                        { 
+                            break; 
+                        }
                     }
                 }
                 Console.WriteLine("Indexing Beat Saber files... " + i + "/" + files.Length);
             }
             return (titles, artists);
         }
+
         public static (List<string> titles, List<string> titlesUni, List<string> artists) OsuFiles(string directory)
         {
             App.Current.MainWindow.Hide();
@@ -1006,14 +860,19 @@ namespace rhythm_games_converter
                             artists.Add(artist);
                             break;
                         }
-                        else { break; }
+                        else 
+                        { 
+                            break; 
+                        }
                     }
+
                 // no match, next line
                 } // loops to line
                 Console.WriteLine("Indexing osu! files... " + i + "/" + files.Length);
             } // loops to file
             return (titles, titlesUni, artists);
         }
+
         public (List<string> titles, List<string> artists)StepFiles(string directory)
         {
             App.Current.MainWindow.Hide();
@@ -1050,13 +909,17 @@ namespace rhythm_games_converter
                             artists.Add(resultArtist);
                             break;
                         }
-                        else { break; }
+                        else 
+                        { 
+                            break; 
+                        }
                     }
                 }
                 Console.WriteLine("Indexing Stepmania files... " + i + "/" + files.Length);
             }
             return (titles, artists);
         }
+
         public string GrooveCoasterMatching(List<string> titles, List<string> titlesUni)
         {
             var matches = new List<string>();
@@ -1117,6 +980,7 @@ namespace rhythm_games_converter
             }
             return sb.ToString();
         }
+
         public string DJMAXMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var matches = new List<string>();
@@ -1150,7 +1014,6 @@ namespace rhythm_games_converter
                 string songBracket = ">" + title.ToUpper() + "<";
                 string songBracketUnicode = string.Empty;
                 string artistBracket = string.Empty;
-                // dont ask why i repeated these methods i dont know and i dont care to fix them
                 if (titlesUni != null)
                 {
                     songBracketUnicode = ">" + titlesUni[i].ToUpper() + "<";
@@ -1180,7 +1043,6 @@ namespace rhythm_games_converter
                 }
                 else if (containsUnicode == true)
                 {
-
                     if (djmaxPage.Contains(songBracketUnicode))
                     {
                         if (containsArtist == true)
@@ -1209,6 +1071,7 @@ namespace rhythm_games_converter
             }
             return sb.ToString();
         }
+
         public string BEMANIMatching(List<string> titles, List<string> titlesUni)
         {
             string[] matches = new string[1000000];
@@ -1220,10 +1083,10 @@ namespace rhythm_games_converter
             origRow = Console.CursorTop;
             Console.WriteLine("Scraping webpages... (0/19)");
             Console.WriteLine("...................");
-            string IIDXPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string iidxPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("IIDX Page Downloaded (1/19)                   ", 0);
             WriteAt("x..................", 1);
-            string IIDXPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string iidxPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("IIDX Page 2 Downloaded (2/19)                 ", 0);
             WriteAt("xx.................", 1);
             string pmPage = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
@@ -1232,19 +1095,19 @@ namespace rhythm_games_converter
             string pmPage2 = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("pop'n'music Page 2 Downloaded (4/19)            ", 0);
             WriteAt("xxxx...............", 1);
-            string DDRPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string ddrPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("Dance Dance Revolution Page Downloaded (5/19)                      ", 0);
             WriteAt("xxxxx..............", 1);
-            string DDRPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string ddrPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("Dance Dance Revolution Page 2 Downloaded (6/19)                    ", 0);
             WriteAt("xxxxxx.............", 1);
-            string GDPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string gdPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("GITADORA Page Downloaded (7/19)                 ", 0);
             WriteAt("xxxxxxx............", 1);
-            string GDPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29", false).ToUpper();
+            string gdPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29", false).ToUpper();
             WriteAt("GITADORA Page 2 Downloaded (8/19)               ", 0);
             WriteAt("xxxxxxxx...........", 1);
-            string GDPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29", false).ToUpper();
+            string gdPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29", false).ToUpper();
             WriteAt("GITADORA Page 3 Downloaded (9/19)               ", 0);
             WriteAt("xxxxxxxxx..........", 1);
             string jubeatPage = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
@@ -1259,10 +1122,10 @@ namespace rhythm_games_converter
             string reflectPage2 = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%A5%EA%A5%E1%A5%A4%A5%AF%C9%E8%CC%CC%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("REFELC BEAT Page 2 Downloaded (13/19)           ", 0);
             WriteAt("xxxxxxxxxxxxx......", 1);
-            string SDVXPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string sdvxPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("SOUND VOLTEX Page Downloaded (14/19)            ", 0);
             WriteAt("xxxxxxxxxxxxxx.....", 1);
-            string SDVXPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string sdvxPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("SOUND VOLTEX Page 2 Downloaded (15/19)          ", 0);
             WriteAt("xxxxxxxxxxxxxxx....", 1);
             string nostalgiaPage = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
@@ -1271,10 +1134,10 @@ namespace rhythm_games_converter
             string nostalgiaPage2 = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("NOSTALGIA Page 2 Downloaded (17/19)             ", 0);
             WriteAt("xxxxxxxxxxxxxxxxx..", 1);
-            string DRSDPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string drsdPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("DANCERUSH STARDOM Page Downloaded (18/19)         ", 0);
             WriteAt("xxxxxxxxxxxxxxxxxx.", 1);
-            string MUSECAPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+            string musecaPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
             WriteAt("MUSECA Page Downloaded (19/19)                    ", 0);
             WriteAt("xxxxxxxxxxxxxxxxxxx", 1);
             var matchesIIDX = new List<string>();
@@ -1312,13 +1175,13 @@ namespace rhythm_games_converter
                     songBracketUnicode = ">N/A<";
                 }
                 bool containsUnicode = !songBracketUnicode.Contains(">N/A<");
-                if (IIDXPage.Contains(songBracket) || IIDXPage2.Contains(songBracket))
+                if (iidxPage.Contains(songBracket) || iidxPage2.Contains(songBracket))
                 {
                     matchesIIDX.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (IIDXPage.Contains(songBracketUnicode) || IIDXPage2.Contains(songBracketUnicode))
+                    if (iidxPage.Contains(songBracketUnicode) || iidxPage2.Contains(songBracketUnicode))
                     {
                         matchesIIDX.Add(titleUnicode + " - (" + title + ")");
                     }
@@ -1334,24 +1197,24 @@ namespace rhythm_games_converter
                         matchesPM.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
-                if (DDRPage.Contains(songBracket) || DDRPage2.Contains(songBracket))
+                if (ddrPage.Contains(songBracket) || ddrPage2.Contains(songBracket))
                 {
                     matchesDDR.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (DDRPage.Contains(songBracketUnicode) || DDRPage2.Contains(songBracketUnicode))
+                    if (ddrPage.Contains(songBracketUnicode) || ddrPage2.Contains(songBracketUnicode))
                     {
                         matchesDDR.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
-                if (GDPage.Contains(songBracket) || GDPage2.Contains(songBracket) || GDPage3.Contains(songBracket))
+                if (gdPage.Contains(songBracket) || gdPage2.Contains(songBracket) || gdPage3.Contains(songBracket))
                 {
                     matchesGD.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (GDPage.Contains(songBracketUnicode) || GDPage2.Contains(songBracketUnicode) || GDPage2.Contains(songBracket))
+                    if (gdPage.Contains(songBracketUnicode) || gdPage2.Contains(songBracketUnicode) || gdPage2.Contains(songBracket))
                     {
                         matchesGD.Add(titleUnicode + " - (" + title + ")");
                     }
@@ -1378,13 +1241,13 @@ namespace rhythm_games_converter
                         matchesReflect.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
-                if (SDVXPage.Contains(songBracket) || SDVXPage2.Contains(songBracket))
+                if (sdvxPage.Contains(songBracket) || sdvxPage2.Contains(songBracket))
                 {
                     matchesSDVX.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (SDVXPage.Contains(songBracketUnicode) || SDVXPage2.Contains(songBracketUnicode))
+                    if (sdvxPage.Contains(songBracketUnicode) || sdvxPage2.Contains(songBracketUnicode))
                     {
                         matchesSDVX.Add(titleUnicode + " - (" + title + ")");
                     }
@@ -1400,24 +1263,24 @@ namespace rhythm_games_converter
                         matchesNostalgia.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
-                if (DRSDPage.Contains(songBracket))
+                if (drsdPage.Contains(songBracket))
                 {
                     matchesDRSD.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (DRSDPage.Contains(songBracketUnicode))
+                    if (drsdPage.Contains(songBracketUnicode))
                     {
                         matchesDRSD.Add(titleUnicode + " - (" + title + ")");
                     }
                 }
-                if (MUSECAPage.Contains(songBracket))
+                if (musecaPage.Contains(songBracket))
                 {
                     matchesMUSECA.Add(title);
                 }
                 else if (containsUnicode == true)
                 {
-                    if (MUSECAPage.Contains(songBracketUnicode))
+                    if (musecaPage.Contains(songBracketUnicode))
                     {
                         matchesMUSECA.Add(titleUnicode + " - (" + title + ")");
                     }
@@ -1491,6 +1354,7 @@ namespace rhythm_games_converter
             resultsList.Visibility = Visibility.Hidden;
             return sb.ToString();
         }
+
         public string CloneMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
@@ -1543,7 +1407,6 @@ namespace rhythm_games_converter
                                 cloneMatches.Add(song.Name + " - Charted by " + song.Charter);
                                 cloneLinks.Add(song.Link);
                             }
-                            else { }
                         }
                         else
                         {
@@ -1562,12 +1425,14 @@ namespace rhythm_games_converter
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { }
+            { 
+            }
             App.Current.MainWindow.Show();
             FreeConsole();
             cloneLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
+
         public string MaiMaiMatching(List<string> titles, List<string> titlesUni)
         {
             var json = string.Empty;
@@ -1596,7 +1461,6 @@ namespace rhythm_games_converter
                 }
                 if (json.Contains(title))
                 {
-
                     maimaiMatches.Add(title.Replace("\"", string.Empty));
                 }
                 else if (json.Contains(titleUnicode))
@@ -1616,6 +1480,7 @@ namespace rhythm_games_converter
             }
             return sb.ToString();
         }
+
         public string OsuMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
@@ -1633,7 +1498,9 @@ namespace rhythm_games_converter
                     hasArtist = true;
                     artist = artists[i];
                 }
-                else { }
+                else 
+                { 
+                }
                 if (hasArtist == true)
                 {
                     try
@@ -1674,7 +1541,6 @@ namespace rhythm_games_converter
                     {
                         using (WebClient wc = new WebClient())
                         {
-
                             json = wc.DownloadString("https://osusearch.com/query/?title=\"" + title + "\"&statuses=Ranked,Loved");
                         }
                     }
@@ -1718,14 +1584,12 @@ namespace rhythm_games_converter
                                 osuMatches.Add(beatmap.Title + " - Mapped by " + beatmap.Mapper);
                                 osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
                             }
-                            else { }
                         }
                         else
                         {
                             osuMatches.Add(beatmap.Title + " - Mapped by " + beatmap.Mapper);
                             osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
-                        }
-                        
+                        }                        
                     }                    
                 }
                 Console.Clear();
@@ -1738,12 +1602,14 @@ namespace rhythm_games_converter
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { }
+            { 
+            }
             App.Current.MainWindow.Show();
             FreeConsole();
             osuLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
+
         public string BeatSaberMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
@@ -1799,7 +1665,6 @@ namespace rhythm_games_converter
                                 beatMatches.Add(song.Metadata.SongName + " - Created by " + song.Metadata.LevelAuthorName);
                                 beatLinks.Add("https://beatsaver.com/beatmap/" + song.Key);
                             }
-                            else { }
                         }
                         else
                         {
@@ -1818,7 +1683,8 @@ namespace rhythm_games_converter
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { }
+            { 
+            }
             App.Current.MainWindow.Show();
             FreeConsole();
             beatLinks.ForEach(s => sb.AppendLine(s));
