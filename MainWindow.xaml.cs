@@ -124,6 +124,10 @@
             {
                 provider.Text = "Beat Saver";
             }
+            else if (search.SelectedIndex == 7)
+            {
+                provider.Text = "Spotify";
+            }
         }
 
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
@@ -180,7 +184,7 @@
 
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
-            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6))
+            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6) || (source.SelectedIndex == 4 && search.SelectedIndex == 7))
             {
                 MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
                 return;
@@ -429,6 +433,11 @@
                     download.IsEnabled = true;
                 }               
             }
+            else if (search.SelectedIndex == 7)
+            {
+                DisableButtons();
+                SpotifyMatching(titles, artists);
+            }
         }
 
         private void SourceOsu()
@@ -502,6 +511,11 @@
                     while (line != null);
                     download.IsEnabled = true;
                 }               
+            }
+            else if (search.SelectedIndex == 7)
+            {
+                DisableButtons();
+                SpotifyMatching(titles, artists);
             }
         }
 
@@ -598,6 +612,11 @@
                     download.IsEnabled = true;
                 }                
             }
+            else if (search.SelectedIndex == 7)
+            {
+                DisableButtons();
+                SpotifyMatching(titles, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -671,6 +690,11 @@
                     while (line != null);
                     download.IsEnabled = true;
                 }
+            }
+            else if (search.SelectedIndex == 7)
+            {
+                DisableButtons();
+                SpotifyMatching(titles, artists);
             }
         }
 
@@ -1657,6 +1681,73 @@
             return sb.ToString();
         }
 
+        private async Task SpotifyMatching(List<string> titles, List<string> artists)
+        {
+            Console.Clear();
+            Console.WriteLine("Searching Spotify...");
+            var spotifyMatches = new List<string>();
+            var spotifyLinks = new List<string>();
+            var config = SpotifyClientConfig.CreateDefault();
+            var request = new ClientCredentialsRequest(<REDACTED>, <REDACTED>);
+            var response = await new OAuthClient(config).RequestToken(request);
+            var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var search = await spotify.Search.Item(new SearchRequest(SearchRequest.Types.Track, "track:\"" + titles[i] + "\""));
+                if (i == 29)
+                {
+                    Console.WriteLine("ye");
+                }
+                int index = 0;
+                await foreach(var item in spotify.Paginate(search.Tracks, (s) => s.Tracks))
+                {
+                    index++;
+                    if (item.Artists.First().Name.Contains(artists[i]))
+                    {
+                        spotifyMatches.Add(item.Name + " by " + item.Artists.First().Name);
+                        spotifyLinks.Add(item.ExternalUrls.Values.First());
+                        break;
+                    }
+                    if (index > 100)
+                    {
+                        // too many results to bother, timeout and move on
+                        break;
+                    }
+                }
+                Console.Clear();
+                Console.WriteLine("Searching Spotify... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(8192);
+            spotifyLinks.ForEach(s => sb.AppendLine(s));
+            string links = sb.ToString();
+            int i2 = 0;
+            spotifyMatches.ForEach(s => resultsList.Items.Add(s));
+            try
+            {
+                resultsList.SelectedIndex = 0;
+            }
+            catch
+            {
+            }
+            using (StringReader reader = new StringReader(links))
+            {
+                string line = string.Empty;
+                do
+                {
+                    line = reader.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        Globals.LinksFinal[i2] = line;
+                        i2++;
+                    }
+                }
+                while (line != null);
+                download.IsEnabled = true;
+                download.Content = "Open";
+            }
+            App.Current.MainWindow.Show();
+            FreeConsole();
+        }
         public string BeatSaberMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
