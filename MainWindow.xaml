@@ -16,7 +16,7 @@
             <ColumnDefinition Width="277*"/>
             <ColumnDefinition Width="818*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="Source game:" HorizontalAlignment="Left" Margin="24,11,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="94"/>
+        <Label Content="Source game:" HorizontalAlignment="Left" Margin="31,11,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="94"/>
         <ComboBox HorizontalAlignment="Left" Margin="134,11,0,0" VerticalAlignment="Top" Width="182" Height="25" Name="source" Grid.ColumnSpan="2" SelectionChanged="SourceChanged">
             <ComboBoxItem>
                 <StackPanel>
@@ -100,6 +100,10 @@
         <ListBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="resultsList"/>
         <Button Content="Download" Name="download" Grid.Column="1" HorizontalAlignment="Left" Margin="713,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="83" Click="Download_Click" IsEnabled="False"/>
         <Button Content="Search!" Name="searchBtn" Grid.Column="1" HorizontalAlignment="Left" Height="31" Margin="678,30,0,0" VerticalAlignment="Top" Grid.RowSpan="2" Width="118" FontSize="14" Click="Search_Click"/>
-
+        <Button Name="moreOptions" Content="..." Grid.Column="1" HorizontalAlignment="Left" Margin="43,10,0,0" Grid.Row="1" VerticalAlignment="Top" Height="25" Width="26" IsEnabled="False" Click="moreOptions_Click"/>
+        <TextBlock Name="osuSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,0,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
+        <TextBlock Name="maniaSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,16,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
+        <TextBlock Name="taikoSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,32,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
+        <TextBlock Name="ctbSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
     </Grid>
 </Window>

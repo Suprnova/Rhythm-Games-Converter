@@ -94,6 +94,7 @@
 
         private void SearchChanged(object sender, SelectionChangedEventArgs e)
         {
+            moreOptions.IsEnabled = false;
             if (search.SelectedIndex == 0)
             {
                 provider.Text = "BEMANIWiki";
@@ -117,6 +118,7 @@
             else if (search.SelectedIndex == 5)
             {
                 provider.Text = "osusearch";
+                moreOptions.IsEnabled = true;
             }
             else if (search.SelectedIndex == 6)
             {
@@ -138,6 +140,13 @@
                 dirText.Visibility = Visibility.Visible;
                 browse.Visibility = Visibility.Visible;
             }
+        }
+
+        private void moreOptions_Click(object sender, RoutedEventArgs e)
+        {
+            Options options = new Options();
+            options.Owner = this;
+            options.ShowDialog();
         }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
@@ -245,7 +254,7 @@
             int indexEnd = playlistURL.IndexOf("?si=");
             playlistURL = playlistURL.Remove(indexEnd);
             var config = SpotifyClientConfig.CreateDefault();
-            var request = new ClientCredentialsRequest("<REDACTED>", "<REDACTED>");
+            var request = new ClientCredentialsRequest(<REDACTED>, <REDACTED>);
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
             var playlist = await spotify.Playlists.GetItems(playlistURL);
@@ -1151,7 +1160,7 @@
             var matchesDRSD = new List<string>();
             var matchesMUSECA = new List<string>();
             Console.Clear();
-            Console.WriteLine("\nFinding matches...");
+            Console.WriteLine("Finding matches...");
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
@@ -1488,6 +1497,44 @@
             var osuLinks = new List<string>();
             Console.Clear();
             Console.WriteLine("Searching osu! songs... ");
+            var selections = new System.Text.StringBuilder();
+            if (osuSelection.Text == "1")
+            {
+                selections.Append("Standard");
+            }
+            if (maniaSelection.Text == "1")
+            {
+                if (!(selections.Length == 0))
+                {
+                    selections.Append(",Mania");
+                }
+                else
+                {
+                    selections.Append("Mania");
+                }
+            }
+            if (taikoSelection.Text == "1")
+            {
+                if (!(selections.Length == 0))
+                {
+                    selections.Append(",Taiko");
+                }
+                else
+                {
+                    selections.Append("Taiko");
+                }
+            }
+            if (ctbSelection.Text == "1")
+            {
+                if (!(selections.Length == 0))
+                {
+                    selections.Append(",CtB");
+                }
+                else
+                {
+                    selections.Append("CtB");
+                }
+            }
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
@@ -1507,7 +1554,7 @@
                     {
                         using (WebClient wc = new WebClient())
                         {
-                            json = wc.DownloadString("https://osusearch.com/query/?title=\"" + title + "\"&artist=\"" + artist + "\"&statuses=Ranked,Loved");
+                            json = wc.DownloadString("https://osusearch.com/query/?title=\"" + title + "\"&artist=\"" + artist + "\"&statuses=Ranked,Loved&modes=" + selections.ToString());
                         }
                     }
                     catch
@@ -1520,7 +1567,7 @@
                         {
                             using (WebClient wc = new WebClient())
                             {
-                                json = wc.DownloadString("https://osusearch.com/query/?title=" + title + "&artist=" + artist + "&statuses=Ranked,Loved");
+                                json = wc.DownloadString("https://osusearch.com/query/?title=" + title + "&artist=" + artist + "&statuses=Ranked,Loved&modes=" + selections.ToString());
                             }
                         }
                         catch
@@ -1690,5 +1737,6 @@
             beatLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
+
     }
 }
