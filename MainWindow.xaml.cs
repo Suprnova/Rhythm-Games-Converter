@@ -1694,10 +1694,6 @@
             for (var i = 0; i < titles.Count; i++)
             {
                 var search = await spotify.Search.Item(new SearchRequest(SearchRequest.Types.Track, "track:\"" + titles[i] + "\""));
-                if (i == 29)
-                {
-                    Console.WriteLine("ye");
-                }
                 int index = 0;
                 await foreach(var item in spotify.Paginate(search.Tracks, (s) => s.Tracks))
                 {
