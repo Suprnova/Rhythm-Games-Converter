@@ -101,6 +101,8 @@
         <Button Content="Browse..." Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="532,10,0,0" VerticalAlignment="Top" Width="107" Click="Browse_Click" Name="browse"/>
         <ListBox Grid.Row="1" Margin="10,44,692,10" Grid.ColumnSpan="2" Name="sourceSongs">
         </ListBox>
+        <ListBox Grid.Row="1" Margin="10,44,692,10" Grid.ColumnSpan="2" Name="spotifyPlaylists" Visibility="Hidden">
+        </ListBox>
         <TextBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="results" IsReadOnly="True"/>
         <ListBox Grid.Column="1" Margin="163,44,10,55" Grid.Row="1" Name="resultsList"/>
         <Button Content="Download" Name="download" Grid.Column="1" HorizontalAlignment="Left" Margin="713,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="83" Click="Download_Click" IsEnabled="False"/>
@@ -110,5 +112,9 @@
         <TextBlock Name="maniaSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,16,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
         <TextBlock Name="taikoSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,32,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
         <TextBlock Name="ctbSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top"><Run Language="ja-jp" Text="1"/></TextBlock>
+        <Button Name="add" Content="Add Selected to Playlist" Grid.Column="1" HorizontalAlignment="Left" Margin="163,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="147" Click="AddPlaylist_Click" Visibility="Hidden"/>
+        <Button Name="addAll" Content="Add All to Playlist" Grid.Column="1" HorizontalAlignment="Left" Margin="328,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="116" Click="AddAll_Click" Visibility="Hidden"/>
+        <Button Name="authenticate" Content="Authenticate Spotify" Grid.Column="1" HorizontalAlignment="Left" Margin="193,523,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="154" Click="Authentication_Click" Visibility="Hidden"/>
+        <ProgressBar Name="prog" Grid.Column="1" HorizontalAlignment="Left" Height="16" Margin="471,531,0,0" Grid.Row="1" VerticalAlignment="Top" Width="228" Visibility="Hidden" IsIndeterminate="True"/>
     </Grid>
 </Window>

@@ -13,6 +13,7 @@
     using Newtonsoft.Json.Linq;
     using Ookii.Dialogs.Wpf;
     using SpotifyAPI.Web;
+    using SpotifyAPI.Web.Auth;
 
     public partial class MainWindow : Window
     {
@@ -29,6 +30,11 @@
         {
             public static string Links = string.Empty;
             public static string[] LinksFinal = new string[100000];
+            public static List<string> SpotifyUris = new List<string>();
+            public static string SpotifyID = "<REDACTED>";
+            public static string SpotifySecret = "<REDACTED>";
+            public static string SpotifyToken;
+            public static string SpotifyPlaylist;
         }
 
         public class Beatmap
@@ -182,6 +188,128 @@
             }
         }
 
+        private async void Authentication_Click(object sender, RoutedEventArgs e)
+        {
+            authenticate.Visibility = Visibility.Hidden;
+            await SpotifyConfig();
+            await Task.Run(() =>
+            {
+                do
+                {
+
+                }
+                while (string.IsNullOrWhiteSpace(Globals.SpotifyToken));
+            });    
+            ((MainWindow)Application.Current.MainWindow).add.Visibility = Visibility.Visible;
+            ((MainWindow)Application.Current.MainWindow).addAll.Visibility = Visibility.Visible;
+        }
+
+        private static async Task OnImplicitGrantReceived(object sender, ImplictGrantResponse response)
+        {
+            await _server.Stop();
+            Globals.SpotifyToken = response.AccessToken;
+        }
+        private static async Task SpotifyConfig()
+        {
+            _server = new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
+            await _server.Start();
+
+            _server.ImplictGrantReceived += OnImplicitGrantReceived;
+
+            var request = new LoginRequest(_server.BaseUri, Globals.SpotifyID, LoginRequest.ResponseType.Token)
+            {
+                Scope = new List<string> { Scopes.PlaylistModifyPrivate, Scopes.PlaylistModifyPublic }
+            };
+            BrowserUtil.Open(request.ToUri());
+        }
+
+        private static EmbedIOAuthServer _server;
+
+        private async void AddAll_Click(object sender, RoutedEventArgs e)
+        {
+            addAll.IsEnabled = false;
+            var spotify = new SpotifyClient(Globals.SpotifyToken);
+            if (string.IsNullOrWhiteSpace(Globals.SpotifyPlaylist))
+            {
+                string item = string.Empty;
+                if (source.SelectedIndex == 0)
+                {
+                    item = "osu!";
+                }
+                else if (source.SelectedIndex == 1)
+                {
+                    item = "Clone Hero";
+                }
+                else if (source.SelectedIndex == 2)
+                {
+                    item = "Stepmania";
+                }
+                else if (source.SelectedIndex == 3)
+                {
+                    item = "Beat Saber";
+                }
+                var request = new PlaylistCreateRequest("Rhythm Games Converter - " + item);
+                var user = await spotify.UserProfile.Current();
+                var playlist = await spotify.Playlists.Create(user.Id, request);
+                Globals.SpotifyPlaylist = playlist.Id;
+            }
+            if (!(Globals.SpotifyUris.Count > 100))
+            {
+                var request = new PlaylistAddItemsRequest(Globals.SpotifyUris);
+                await spotify.Playlists.AddItems(Globals.SpotifyPlaylist, request);
+            }
+            else
+            {
+                prog.Visibility = Visibility.Visible;
+                foreach (string uri in Globals.SpotifyUris)
+                {
+                    List<string> uris = new List<string>();
+                    uris.Add(uri);
+                    var request = new PlaylistAddItemsRequest(uris);
+                    await spotify.Playlists.AddItems(Globals.SpotifyPlaylist, request);
+                }
+                prog.Visibility = Visibility.Hidden;
+            }
+            MessageBox.Show("Added all songs to a Spotify playlist labelled \"Rhythm Games Converter\".", "Success");
+            addAll.IsEnabled = false;
+        }
+
+        private async void AddPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            var spotify = new SpotifyClient(Globals.SpotifyToken);
+            if (string.IsNullOrWhiteSpace(Globals.SpotifyPlaylist))
+            {
+                string item = string.Empty;
+                if (source.SelectedIndex == 0)
+                {
+                    item = "osu!";
+                }
+                else if (source.SelectedIndex == 1)
+                {
+                    item = "Clone Hero";
+                }
+                else if (source.SelectedIndex == 2)
+                {
+                    item = "Stepmania";
+                }
+                else if (source.SelectedIndex == 3)
+                {
+                    item = "Beat Saber";
+                }
+                var request = new PlaylistCreateRequest("Rhythm Games Converter - " + item);
+                var user = await spotify.UserProfile.Current();
+                var playlist = await spotify.Playlists.Create(user.Id, request);
+                Globals.SpotifyPlaylist = playlist.Id;
+            }
+            string uri = Globals.SpotifyUris[resultsList.SelectedIndex];
+            List<string> uris = new List<string>();
+            uris.Add(uri);
+            var requestTrack = new PlaylistAddItemsRequest(uris);
+            await spotify.Playlists.AddItems(Globals.SpotifyPlaylist, requestTrack);
+            MessageBox.Show("Added selected song to a Spotify playlist labelled \"Rhythm Games Converter\"", "Success");
+        }
+
+
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
             if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6) || (source.SelectedIndex == 4 && search.SelectedIndex == 7))
@@ -258,7 +386,7 @@
             int indexEnd = playlistURL.IndexOf("?si=");
             playlistURL = playlistURL.Remove(indexEnd);
             var config = SpotifyClientConfig.CreateDefault();
-            var request = new ClientCredentialsRequest(<REDACTED>, <REDACTED>);
+            var request = new ClientCredentialsRequest(Globals.SpotifyID, Globals.SpotifySecret);
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
             var playlist = await spotify.Playlists.GetItems(playlistURL);
@@ -318,7 +446,7 @@
                 results.Text = GrooveCoasterMatching(songs, null);
             }
             else if (search.SelectedIndex == 5)
-            {                
+            {
                 DisableButtons();
                 Globals.Links = OsuMatching(songs, artists);
                 int i = 0;
@@ -336,10 +464,10 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }                
+                }
             }
             else if (search.SelectedIndex == 6)
-            {                
+            {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(songs, artists);
                 int i = 0;
@@ -357,7 +485,7 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }               
+                }
             }
         }
 
@@ -392,7 +520,7 @@
                 results.Text = GrooveCoasterMatching(titles, null);
             }
             else if (search.SelectedIndex == 5)
-            {               
+            {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
                 int i = 0;
@@ -410,10 +538,10 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }               
+                }
             }
             else if (search.SelectedIndex == 6)
-            {                
+            {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
                 int i = 0;
@@ -431,7 +559,7 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }               
+                }
             }
             else if (search.SelectedIndex == 7)
             {
@@ -492,7 +620,7 @@
                 results.Text = GrooveCoasterMatching(titles, titlesUni);
             }
             else if (search.SelectedIndex == 6)
-            {                
+            {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
                 int i = 0;
@@ -510,7 +638,7 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }               
+                }
             }
             else if (search.SelectedIndex == 7)
             {
@@ -571,7 +699,7 @@
                 results.Text = GrooveCoasterMatching(titles, null);
             }
             else if (search.SelectedIndex == 5)
-            {               
+            {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
                 int i = 0;
@@ -589,10 +717,10 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }               
+                }
             }
             else if (search.SelectedIndex == 6)
-            {               
+            {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
                 int i = 0;
@@ -610,7 +738,7 @@
                     }
                     while (line != null);
                     download.IsEnabled = true;
-                }                
+                }
             }
             else if (search.SelectedIndex == 7)
             {
@@ -762,9 +890,9 @@
                             artists.Add(resultArtist);
                             break;
                         }
-                        else 
-                        { 
-                            break; 
+                        else
+                        {
+                            break;
                         }
                     }
                 }
@@ -813,9 +941,9 @@
                             artists.Add(resultArtist);
                             break;
                         }
-                        else 
-                        { 
-                            break; 
+                        else
+                        {
+                            break;
                         }
                     }
                 }
@@ -893,20 +1021,20 @@
                             artists.Add(artist);
                             break;
                         }
-                        else 
-                        { 
-                            break; 
+                        else
+                        {
+                            break;
                         }
                     }
 
-                // no match, next line
+                    // no match, next line
                 } // loops to line
                 Console.WriteLine("Indexing osu! files... " + i + "/" + files.Length);
             } // loops to file
             return (titles, titlesUni, artists);
         }
 
-        public (List<string> titles, List<string> artists)StepFiles(string directory)
+        public (List<string> titles, List<string> artists) StepFiles(string directory)
         {
             App.Current.MainWindow.Hide();
             AllocConsole();
@@ -914,7 +1042,7 @@
             Console.WriteLine("Indexing Stepmania files...");
             string[] files = Directory.GetFiles(directory, "*.sm", SearchOption.AllDirectories);
             var titles = new List<string>();
-            var artists = new List<string>();           
+            var artists = new List<string>();
             int i = 0;
             foreach (string file in files)
             {
@@ -942,9 +1070,9 @@
                             artists.Add(resultArtist);
                             break;
                         }
-                        else 
-                        { 
-                            break; 
+                        else
+                        {
+                            break;
                         }
                     }
                 }
@@ -1088,7 +1216,7 @@
                         else
                         {
                             matches.Add(titleUnicode + " - (" + title + ") by " + artist);
-                        }                            
+                        }
                     }
                 }
             }
@@ -1458,7 +1586,7 @@
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { 
+            {
             }
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1484,7 +1612,7 @@
             {
                 var title = "\"" + titles[i] + "\"";
                 var titleUnicode = string.Empty;
-                if (titlesUni != null) 
+                if (titlesUni != null)
                 {
                     titleUnicode = "\"" + titlesUni[i] + "\"";
                 }
@@ -1569,8 +1697,8 @@
                     hasArtist = true;
                     artist = artists[i];
                 }
-                else 
-                { 
+                else
+                {
                 }
                 if (hasArtist == true)
                 {
@@ -1660,8 +1788,8 @@
                         {
                             osuMatches.Add(beatmap.Title + " - Mapped by " + beatmap.Mapper);
                             osuLinks.Add("https://osu.ppy.sh/beatmapsets/" + beatmap.BeatmapSet_ID);
-                        }                        
-                    }                    
+                        }
+                    }
                 }
                 Console.Clear();
                 Console.WriteLine("Searching osu! songs... " + i + "/" + titles.Count);
@@ -1673,7 +1801,7 @@
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { 
+            {
             }
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1687,21 +1815,23 @@
             Console.WriteLine("Searching Spotify...");
             var spotifyMatches = new List<string>();
             var spotifyLinks = new List<string>();
+            var spotifyUris = new List<string>();
             var config = SpotifyClientConfig.CreateDefault();
-            var request = new ClientCredentialsRequest(<REDACTED>, <REDACTED>);
+            var request = new ClientCredentialsRequest(Globals.SpotifyID, Globals.SpotifySecret);
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
             for (var i = 0; i < titles.Count; i++)
             {
                 var search = await spotify.Search.Item(new SearchRequest(SearchRequest.Types.Track, "track:\"" + titles[i] + "\""));
                 int index = 0;
-                await foreach(var item in spotify.Paginate(search.Tracks, (s) => s.Tracks))
+                await foreach (var item in spotify.Paginate(search.Tracks, (s) => s.Tracks))
                 {
                     index++;
                     if (item.Artists.First().Name.Contains(artists[i]))
                     {
                         spotifyMatches.Add(item.Name + " by " + item.Artists.First().Name);
                         spotifyLinks.Add(item.ExternalUrls.Values.First());
+                        spotifyUris.Add(item.Uri);
                         break;
                     }
                     if (index > 100)
@@ -1713,6 +1843,7 @@
                 Console.Clear();
                 Console.WriteLine("Searching Spotify... " + i + "/" + titles.Count);
             }
+            spotifyUris.ForEach(s => Globals.SpotifyUris.Add(s));
             var sb = new StringBuilder(8192);
             spotifyLinks.ForEach(s => sb.AppendLine(s));
             string links = sb.ToString();
@@ -1738,8 +1869,13 @@
                     }
                 }
                 while (line != null);
-                download.IsEnabled = true;
-                download.Content = "Open";
+                if (resultsList.Items.Count != 0)
+                {
+                    download.IsEnabled = true;
+                    authenticate.Visibility = Visibility.Visible;
+                    download.Content = "Open";
+                }
+                
             }
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1817,13 +1953,10 @@
                 resultsList.SelectedIndex = 0;
             }
             catch
-            { 
+            {
             }
-            App.Current.MainWindow.Show();
-            FreeConsole();
             beatLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
-
     }
 }
