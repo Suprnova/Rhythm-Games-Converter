@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -90,29 +91,13 @@
         [DllImport("Kernel32")]
         public static extern void FreeConsole();
 
-        protected static int origRow;
-        protected static int origCol;
-
-        protected static void WriteAt(string s, int x)
-        {
-            try
-            {
-                Console.SetCursorPosition(0, origRow + x);
-                Console.Write(s);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                Console.Clear();
-                Console.WriteLine(e.Message);
-            }
-        }
-
         private void SearchChanged(object sender, SelectionChangedEventArgs e)
         {
             moreOptions.IsEnabled = false;
             if (search.SelectedIndex == 0)
             {
                 provider.Text = "BEMANIWiki";
+                moreOptions.IsEnabled = true;
             }
             else if (search.SelectedIndex == 1)
             {
@@ -163,9 +148,18 @@
 
         private void moreOptions_Click(object sender, RoutedEventArgs e)
         {
-            Options options = new Options();
-            options.Owner = this;
-            options.ShowDialog();
+            if (search.SelectedIndex == 5)
+            {
+                Options options = new Options();
+                options.Owner = this;
+                options.ShowDialog();
+            }
+            else if (search.SelectedIndex == 0)
+            {
+                OptionsBemani optionsBemani = new OptionsBemani();
+                optionsBemani.Owner = this;
+                optionsBemani.ShowDialog();
+            }
         }
 
         private void Browse_Click(object sender, RoutedEventArgs e)
@@ -381,6 +375,7 @@
             dir.IsEnabled = false;
             browse.IsEnabled = false;
             prov.IsEnabled = false;
+            moreOptions.IsEnabled = false;
         }
 
         private async Task SourceSpotify()
@@ -412,6 +407,8 @@
                     sourceSongs.Items.Add(track.Name + " by " + artist);
                 }
             }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
 
             if (search.SelectedIndex == 0)
             {
@@ -513,6 +510,8 @@
                     sourceSongs.Items.Add(title);
                 }
             }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
             if (search.SelectedIndex == 0)
             {
                 DisableButtons();
@@ -597,6 +596,8 @@
                     sourceSongs.Items.Add(title);
                 }
             }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
             if (search.SelectedIndex == 0)
             {
                 DisableButtons();
@@ -681,6 +682,8 @@
                     sourceSongs.Items.Add(title);
                 }
             }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
             if (search.SelectedIndex == 0)
             {
                 DisableButtons();
@@ -786,6 +789,8 @@
                     sourceSongs.Items.Add(title);
                 }
             }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
             if (search.SelectedIndex == 0)
             {
                 DisableButtons();
@@ -1164,6 +1169,7 @@
                 }
             }
             var sb = new StringBuilder(4096);
+            matches.Sort();
             matches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1255,6 +1261,7 @@
                 }
             }
             var sb = new StringBuilder(4096);
+            matches.Sort();
             matches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1275,66 +1282,113 @@
                 MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
             }
             Console.Clear();
-            origRow = Console.CursorTop;
-            Console.WriteLine("Scraping webpages... (0/19)");
-            Console.WriteLine("...................");
-            string iidxPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("IIDX Page Downloaded (1/19)                   ", 0);
-            WriteAt("x..................", 1);
-            string iidxPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("IIDX Page 2 Downloaded (2/19)                 ", 0);
-            WriteAt("xx.................", 1);
-            string pmPage = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("pop'n'music Page Downloaded (3/19)            ", 0);
-            WriteAt("xxx................", 1);
-            string pmPage2 = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("pop'n'music Page 2 Downloaded (4/19)            ", 0);
-            WriteAt("xxxx...............", 1);
-            string ddrPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("Dance Dance Revolution Page Downloaded (5/19)                      ", 0);
-            WriteAt("xxxxx..............", 1);
-            string ddrPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("Dance Dance Revolution Page 2 Downloaded (6/19)                    ", 0);
-            WriteAt("xxxxxx.............", 1);
-            string gdPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("GITADORA Page Downloaded (7/19)                 ", 0);
-            WriteAt("xxxxxxx............", 1);
-            string gdPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29", false).ToUpper();
-            WriteAt("GITADORA Page 2 Downloaded (8/19)               ", 0);
-            WriteAt("xxxxxxxx...........", 1);
-            string gdPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29", false).ToUpper();
-            WriteAt("GITADORA Page 3 Downloaded (9/19)               ", 0);
-            WriteAt("xxxxxxxxx..........", 1);
-            string jubeatPage = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("jubeat Page Downloaded (10/19)                  ", 0);
-            WriteAt("xxxxxxxxxx.........", 1);
-            string jubeatPage2 = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("jubeat Page 2 Downloaded (11/19)                ", 0);
-            WriteAt("xxxxxxxxxxx........", 1);
-            string reflectPage = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("REFLEC BEAT Page Downloaded (12/19)             ", 0);
-            WriteAt("xxxxxxxxxxxx.......", 1);
-            string reflectPage2 = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%A5%EA%A5%E1%A5%A4%A5%AF%C9%E8%CC%CC%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("REFELC BEAT Page 2 Downloaded (13/19)           ", 0);
-            WriteAt("xxxxxxxxxxxxx......", 1);
-            string sdvxPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("SOUND VOLTEX Page Downloaded (14/19)            ", 0);
-            WriteAt("xxxxxxxxxxxxxx.....", 1);
-            string sdvxPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("SOUND VOLTEX Page 2 Downloaded (15/19)          ", 0);
-            WriteAt("xxxxxxxxxxxxxxx....", 1);
-            string nostalgiaPage = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("NOSTALGIA Page Downloaded (16/19)               ", 0);
-            WriteAt("xxxxxxxxxxxxxxxx...", 1);
-            string nostalgiaPage2 = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("NOSTALGIA Page 2 Downloaded (17/19)             ", 0);
-            WriteAt("xxxxxxxxxxxxxxxxx..", 1);
-            string drsdPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("DANCERUSH STARDOM Page Downloaded (18/19)         ", 0);
-            WriteAt("xxxxxxxxxxxxxxxxxx.", 1);
-            string musecaPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
-            WriteAt("MUSECA Page Downloaded (19/19)                    ", 0);
-            WriteAt("xxxxxxxxxxxxxxxxxxx", 1);
+            Console.WriteLine("Scraping webpages...");
+            string iidxPage = string.Empty;
+            string iidxPage2 = string.Empty;
+            string pmPage = string.Empty;
+            string pmPage2 = string.Empty;
+            string ddrPage = string.Empty;
+            string ddrPage2 = string.Empty;
+            string gdPage = string.Empty;
+            string gdPage2 = string.Empty;
+            string gdPage3 = string.Empty;
+            string jubeatPage = string.Empty;
+            string jubeatPage2 = string.Empty;
+            string reflectPage = string.Empty;
+            string reflectPage2 = string.Empty;
+            string sdvxPage = string.Empty;
+            string sdvxPage2 = string.Empty;
+            string nostalgiaPage = string.Empty;
+            string nostalgiaPage2 = string.Empty;
+            string drsdPage = string.Empty;
+            string musecaPage = string.Empty;
+            if (beatmaniaSelection.Text == "1")
+            {
+                iidxPage = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("IIDX page 1 scraped...");
+                iidxPage2 = ScrapePage("https://bemaniwiki.com/index.php?beatmania%20IIDX%2027%20HEROIC%20VERSE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("IIDX page 2 scraped...");
+            }
+            if (popnmusicSelection.Text == "1")
+            {
+                pmPage = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("pop'n'music page 1 scraped...");
+                pmPage2 = ScrapePage("https://bemaniwiki.com/index.php?pop%27n%20music%20peace/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("pop'n'music page 2 scraped...");
+            }
+            if (ddrSelection.Text == "1")
+            {
+                ddrPage = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Dance Dance Revolution page 1 scraped...");
+                ddrPage2 = ScrapePage("https://bemaniwiki.com/index.php?DanceDanceRevolution%20A20/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Dance Dance Revolution page 2 scraped...");
+            }
+            if (gitadoraSelection.Text == "1")
+            {
+                gdPage = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("GITADORA page 1 scraped...");
+                gdPage2 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28%A1%C1XG3%29", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("GITADORA page 2 scraped...");
+                gdPage3 = ScrapePage("https://bemaniwiki.com/index.php?GITADORA%20NEX%2BAGE/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8%28GITADORA%A1%C1%29", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("GITADORA page 3 scraped...");
+            }
+            if (jubeatSelection.Text == "1")
+            {
+                jubeatPage = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("jubeat page 1 scraped...");
+                jubeatPage2 = ScrapePage("https://bemaniwiki.com/index.php?jubeat%20festo/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("jubeat page 2 scraped...");
+            }
+            if (reflecSelection.Text == "1")
+            {
+                reflectPage = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("REFLEC BEAT page 1 scraped...");
+                reflectPage2 = ScrapePage("https://bemaniwiki.com/index.php?REFLEC%20BEAT%20%CD%AA%B5%D7%A4%CE%A5%EA%A5%D5%A5%EC%A5%B7%A5%A2/%A5%EA%A5%E1%A5%A4%A5%AF%C9%E8%CC%CC%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("REFLEC BEAT page 2 scraped...");
+            }
+            if (sdvxSelection.Text == "1")
+            {
+                sdvxPage = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%B5%EC%B6%CA/%B3%DA%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Sound Voltex page 1 scraped...");
+                sdvxPage2 = ScrapePage("https://bemaniwiki.com/index.php?SOUND%20VOLTEX%20VIVID%20WAVE/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Sound Voltex page 2 scraped...");
+            }
+            if (nostalgiaSelection.Text == "1")
+            {
+                nostalgiaPage = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Nostalgia page 1 scraped...");
+                nostalgiaPage2 = ScrapePage("https://bemaniwiki.com/index.php?%A5%CE%A5%B9%A5%BF%A5%EB%A5%B8%A5%A2%20Op.3/%B5%EC%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("Nostalgia page 2 scraped...");
+            }
+            if (drsdSelection.Text == "1")
+            {
+                drsdPage = ScrapePage("https://bemaniwiki.com/index.php?DANCERUSH%20STARDOM/%BC%FD%CF%BF%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("DANCERUSH STARDOM page scraped...");
+            }
+            if (musecaSelection.Text == "1")
+            {
+                musecaPage = ScrapePage("https://bemaniwiki.com/index.php?MUSECA%201%2B1/2/%BF%B7%B6%CA%A5%EA%A5%B9%A5%C8", false).ToUpper();
+                Console.Clear();
+                Console.WriteLine("MUSECA page scraped...");
+            }           
             var matchesIIDX = new List<string>();
             var matchesPM = new List<string>();
             var matchesDDR = new List<string>();
@@ -1483,67 +1537,115 @@
             }
             var sb = new StringBuilder(4096);
             string newline = Environment.NewLine;
-            sb.AppendLine("[beatmania IIDX]");
-            matchesIIDX.ForEach(s => sb.AppendLine(s));
-            if (matchesIIDX.Count == 0)
+            if (beatmaniaSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[beatmania IIDX]");
+                matchesIIDX.Sort();
+                matchesIIDX.ForEach(s => sb.AppendLine(s));
+                if (matchesIIDX.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[pop'n'music]");
-            matchesPM.ForEach(s => sb.AppendLine(s));
-            if (matchesPM.Count == 0)
+            if (popnmusicSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[pop'n'music]");
+                matchesPM.Sort();
+                matchesPM.ForEach(s => sb.AppendLine(s));
+                if (matchesPM.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[Dance Dance Revolution]");
-            matchesDDR.ForEach(s => sb.AppendLine(s));
-            if (matchesDDR.Count == 0)
+            if (ddrSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[Dance Dance Revolution]");
+                matchesDDR.Sort();
+                matchesDDR.ForEach(s => sb.AppendLine(s));
+                if (matchesDDR.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[Gitadora]");
-            matchesGD.ForEach(s => sb.AppendLine(s));
-            if (matchesGD.Count == 0)
+            if (gitadoraSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[Gitadora]");
+                matchesGD.Sort();
+                matchesGD.ForEach(s => sb.AppendLine(s));
+                if (matchesGD.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[jubeat]");
-            matchesJubeat.ForEach(s => sb.AppendLine(s));
-            if (matchesJubeat.Count == 0)
+            if (jubeatSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[jubeat]");
+                matchesJubeat.Sort();
+                matchesJubeat.ForEach(s => sb.AppendLine(s));
+                if (matchesJubeat.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[REFLEC BEAT]");
-            matchesReflect.ForEach(s => sb.AppendLine(s));
-            if (matchesReflect.Count == 0)
+            if (reflecSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[REFLEC BEAT]");
+                matchesReflect.Sort();
+                matchesReflect.ForEach(s => sb.AppendLine(s));
+                if (matchesReflect.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[Sound Voltex]");
-            matchesSDVX.ForEach(s => sb.AppendLine(s));
-            if (matchesSDVX.Count == 0)
+            if (sdvxSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[Sound Voltex]");
+                matchesSDVX.Sort();
+                matchesSDVX.ForEach(s => sb.AppendLine(s));
+                if (matchesSDVX.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[NOSTALGIA]");
-            matchesNostalgia.ForEach(s => sb.AppendLine(s));
-            if (matchesNostalgia.Count == 0)
+            if (nostalgiaSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[NOSTALGIA]");
+                matchesNostalgia.Sort();
+                matchesNostalgia.ForEach(s => sb.AppendLine(s));
+                if (matchesNostalgia.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[DANCERUSH STARDOM]");
-            matchesDRSD.ForEach(s => sb.AppendLine(s));
-            if (matchesDRSD.Count == 0)
+            if (drsdSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[DANCERUSH STARDOM]");
+                matchesDRSD.Sort();
+                matchesDRSD.ForEach(s => sb.AppendLine(s));
+                if (matchesDRSD.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
+                sb.AppendLine(newline);
             }
-            sb.AppendLine(newline + "[MÚSECA]");
-            matchesMUSECA.ForEach(s => sb.AppendLine(s));
-            if (matchesMUSECA.Count == 0)
+            if (musecaSelection.Text == "1")
             {
-                sb.AppendLine("No matches :(");
+                sb.AppendLine("[MÚSECA]");
+                matchesMUSECA.Sort();
+                matchesMUSECA.ForEach(s => sb.AppendLine(s));
+                if (matchesMUSECA.Count == 0)
+                {
+                    sb.AppendLine("No matches :(");
+                }
             }
-
             App.Current.MainWindow.Show();
             FreeConsole();
             resultsList.Visibility = Visibility.Hidden;
@@ -1664,6 +1766,7 @@
                 }
             }
             var sb = new StringBuilder(4096);
+            maimaiMatches.Sort();
             maimaiMatches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1996,6 +2099,10 @@
             var json = string.Empty;
             var json2 = string.Empty;
             var chunithmMatches = new List<string>();
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
             Console.Clear();
             Console.WriteLine("Searching Chunithm songs... ");
             using (WebClient wc = new WebClient())
@@ -2054,6 +2161,7 @@
                 Console.WriteLine("Searching Chunithm songs... " + i + "/" + titles.Count);
             }
             var sb = new StringBuilder(4096);
+            chunithmMatches.Sort();
             chunithmMatches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
