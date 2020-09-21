@@ -85,6 +85,15 @@
             public string Artist { get; set; }
         }
 
+        public class MaiSong
+        {
+            public string Title { get; set; }
+
+            public string Title_Kana { get; set; }
+
+            public string Artist { get; set; }
+        }
+
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -1744,25 +1753,36 @@
             {
                 json = wc.DownloadString("https://maimai.sega.com/data/DXsongs.json");
             }
+            JArray maimaiSongs = JArray.Parse(json);
+            IList<JToken> maimaiSongsList = maimaiSongs.Children().ToList();
             for (var i = 0; i < titles.Count; i++)
             {
-                var title = "\"" + titles[i] + "\"";
+                var title = titles[i];
                 var titleUnicode = string.Empty;
+                bool containsUni = false;
                 if (titlesUni != null)
                 {
-                    titleUnicode = "\"" + titlesUni[i] + "\"";
+                    titleUnicode = titlesUni[i];
+                    containsUni = true;
                 }
                 else
                 {
                     titleUnicode = "NOT AVAILABLE";
                 }
-                if (json.Contains(title))
+                foreach (JToken result in maimaiSongsList)
                 {
-                    maimaiMatches.Add(title.Replace("\"", string.Empty));
-                }
-                else if (json.Contains(titleUnicode))
-                {
-                    maimaiMatches.Add(titleUnicode.Replace("\"", string.Empty) + " - (" + title.Replace("\"", string.Empty) + ")");
+                    MaiSong song = result.ToObject<MaiSong>();
+                    if ((song.Title.ToUpper() == title.ToUpper()) || song.Title_Kana.ToUpper() == title.ToUpper())
+                    {
+                        maimaiMatches.Add(song.Title + " by " + song.Artist);
+                    }
+                    else if (containsUni == true)
+                    {
+                        if ((song.Title.ToUpper() == titleUnicode.ToUpper()) || song.Title_Kana.ToUpper() == titleUnicode.ToUpper())
+                        {
+                            maimaiMatches.Add(titleUnicode + " - (" + title + ") by " + song.Artist);
+                        }
+                    }
                 }
             }
             var sb = new StringBuilder(4096);
