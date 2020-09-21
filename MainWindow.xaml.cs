@@ -75,6 +75,15 @@
             }
         }
 
+        public class ChunSong
+        {
+            public string Title { get; set; }
+
+            public string Reading { get; set; }
+
+            public string Artist { get; set; }
+        }
+
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -109,7 +118,7 @@
             {
                 provider.Text = "Chorus";
             }
-            else if (search.SelectedIndex == 2)
+            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8)
             {
                 provider.Text = "SEGA";
             }
@@ -385,7 +394,7 @@
             playlistURL = playlistURL.Substring(index + 9);
             int indexEnd = playlistURL.IndexOf("?si=");
             playlistURL = playlistURL.Remove(indexEnd);
-            var config = SpotifyClientConfig.CreateDefault();
+            var config = SpotifyClientConfig.CreateDefault().WithRetryHandler(new SimpleRetryHandler() { RetryAfter = TimeSpan.FromSeconds(1) });
             var request = new ClientCredentialsRequest(Globals.SpotifyID, Globals.SpotifySecret);
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
@@ -487,6 +496,11 @@
                     download.IsEnabled = true;
                 }
             }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(songs, null, artists);
+            }
         }
 
         private void SourceClone()
@@ -566,6 +580,11 @@
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(titles, null, artists);
+            }
         }
 
         private void SourceOsu()
@@ -644,6 +663,11 @@
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
+            }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(titles, titlesUni, artists);
             }
         }
 
@@ -745,6 +769,11 @@
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(titles, null, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -823,6 +852,11 @@
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
+            }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(titles, null, artists);
             }
         }
 
@@ -1808,7 +1842,6 @@
             osuLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
-
         private async Task SpotifyMatching(List<string> titles, List<string> artists)
         {
             Console.Clear();
@@ -1816,7 +1849,7 @@
             var spotifyMatches = new List<string>();
             var spotifyLinks = new List<string>();
             var spotifyUris = new List<string>();
-            var config = SpotifyClientConfig.CreateDefault();
+            var config = SpotifyClientConfig.CreateDefault().WithRetryHandler(new SimpleRetryHandler() { RetryAfter = TimeSpan.FromSeconds(1) });
             var request = new ClientCredentialsRequest(Globals.SpotifyID, Globals.SpotifySecret);
             var response = await new OAuthClient(config).RequestToken(request);
             var spotify = new SpotifyClient(config.WithToken(response.AccessToken));
@@ -1875,7 +1908,7 @@
                     authenticate.Visibility = Visibility.Visible;
                     download.Content = "Open";
                 }
-                
+
             }
             App.Current.MainWindow.Show();
             FreeConsole();
@@ -1956,6 +1989,80 @@
             {
             }
             beatLinks.ForEach(s => sb.AppendLine(s));
+            return sb.ToString();
+        }
+        public string ChunithmMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var json = string.Empty;
+            var json2 = string.Empty;
+            var chunithmMatches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Searching Chunithm songs... ");
+            using (WebClient wc = new WebClient())
+            {
+                json = wc.DownloadString("https://chunithm.sega.jp/data/common.json");
+                // only has 36 songs cant be bothered to write code for it /shrug 
+                // json2 = wc.DownloadString("https://chunithm.sega.jp/data/course.json");
+            }
+            JArray chunithmSongs = JArray.Parse(json);
+            IList<JToken> chunithmSongsList = chunithmSongs.Children().ToList();
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                bool containsUni = false;
+                var titleUnicode = string.Empty;
+                if (titlesUni != null)
+                {
+                    containsUni = true;
+                    titleUnicode = titlesUni[i];
+                }
+                else
+                {
+                    titleUnicode = "NOT AVAILABLE";
+                }
+                string artist = artists[i];
+                foreach (JToken result in chunithmSongsList)
+                {
+                    ChunSong song = result.ToObject<ChunSong>();
+                    if ((song.Title.ToUpper() == title.ToUpper()) || song.Reading.ToUpper() == title.ToUpper())
+                    {
+                        if (song.Artist.ToUpper() == artist.ToUpper())
+                        {
+                            chunithmMatches.Add(song.Title + " by " + song.Artist);
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (containsUni == true)
+                    {
+                        if ((song.Title.ToUpper() == titleUnicode.ToUpper()) || song.Reading.ToUpper() == titleUnicode.ToUpper())
+                        {
+                            if (song.Artist.ToUpper() == artist.ToUpper())
+                            {
+                                chunithmMatches.Add(song.Title + " by " + song.Artist);
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }                    
+                }
+
+                Console.WriteLine("Searching Chunithm songs... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            chunithmMatches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
             return sb.ToString();
         }
     }

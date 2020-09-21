@@ -13,6 +13,7 @@
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.0.0-beta.11" />
     <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0-beta.11" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
   </ItemGroup>
 
