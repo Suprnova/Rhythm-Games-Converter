@@ -22,6 +22,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * osu! (via [osusearch](https://osusearch.com/))
 * Beat Saber (via [Beat Saver](https://beatsaver.com/))
 * Spotify (via [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET))
+* Chunithm (via [SEGA](https://chunithm.sega.jp/))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
