@@ -94,6 +94,15 @@
             public string Artist { get; set; }
         }
 
+        public class OngekiSong
+        {
+            public string Title { get; set; }
+
+            public string Title_Sort { get; set; }
+
+            public string Artist { get; set; }
+        }
+
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -112,7 +121,7 @@
             {
                 provider.Text = "Chorus";
             }
-            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8)
+            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8 || search.SelectedIndex == 9)
             {
                 provider.Text = "SEGA";
             }
@@ -678,6 +687,11 @@
             {
                 DisableButtons();
                 results.Text = ChunithmMatching(titles, titlesUni, artists);
+            }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(titles, titlesUni, artists);
             }
         }
 
@@ -2183,6 +2197,82 @@
             var sb = new StringBuilder(4096);
             chunithmMatches.Sort();
             chunithmMatches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
+        public string OngekiMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var json = string.Empty;
+            var ongekiMatches = new List<string>();
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
+            Console.Clear();
+            Console.WriteLine("Searching Ongeki songs... ");
+            using (WebClient wc = new WebClient())
+            {
+                json = wc.DownloadString("https://ongeki.sega.jp/assets/json/music/music.json");
+            }
+            JArray ongekiSongs = JArray.Parse(json);
+            IList<JToken> ongekiSongsList = ongekiSongs.Children().ToList();
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                bool containsUni = false;
+                var titleUnicode = string.Empty;
+                if (titlesUni != null)
+                {
+                    containsUni = true;
+                    titleUnicode = titlesUni[i];
+                }
+                else
+                {
+                    titleUnicode = "NOT AVAILABLE";
+                }
+                string artist = artists[i];
+                foreach (JToken result in ongekiSongsList)
+                {
+                    OngekiSong song = result.ToObject<OngekiSong>();
+                    if ((song.Title.ToUpper() == title.ToUpper()) || song.Title_Sort.ToUpper() == title.ToUpper())
+                    {
+                        if (song.Artist.ToUpper() == artist.ToUpper())
+                        {
+                            ongekiMatches.Add(song.Title + " by " + song.Artist);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else if (containsUni == true)
+                    {
+                        if ((song.Title.ToUpper() == titleUnicode.ToUpper()) || song.Title_Sort.ToUpper() == titleUnicode.ToUpper())
+                        {
+                            if (song.Artist.ToUpper() == artist.ToUpper())
+                            {
+                                ongekiMatches.Add(song.Title + " by " + song.Artist);
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine("Searching Chunithm songs... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            ongekiMatches.Sort();
+            ongekiMatches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
             resultsList.Visibility = Visibility.Hidden;
