@@ -516,6 +516,16 @@
                 DisableButtons();
                 results.Text = ChunithmMatching(songs, null, artists);
             }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(songs, null, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(songs, null, artists);
+            }
         }
 
         private void SourceClone()
@@ -601,6 +611,16 @@
             {
                 DisableButtons();
                 results.Text = ChunithmMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(titles, null, artists);
             }
         }
 
@@ -692,6 +712,11 @@
             {
                 DisableButtons();
                 results.Text = OngekiMatching(titles, titlesUni, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(titles, titlesUni, artists);
             }
         }
 
@@ -800,6 +825,16 @@
                 DisableButtons();
                 results.Text = ChunithmMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(titles, null, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -885,6 +920,16 @@
             {
                 DisableButtons();
                 results.Text = ChunithmMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(titles, null, artists);
             }
         }
 
@@ -2273,6 +2318,62 @@
             var sb = new StringBuilder(4096);
             ongekiMatches.Sort();
             ongekiMatches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
+        public string DivaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching Project Diva song list...");
+            string divaPage = ScrapePage("https://miku.sega.com/futuretone/songs.html", true).ToUpper();
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                if (title == "Ievan Polkka")
+                {
+                    Console.WriteLine();
+                }
+                var titleUnicode = string.Empty;
+                bool containsUnicode = false;
+                if (titlesUni != null)
+                {
+                    titleUnicode = titlesUni[i];
+                    containsUnicode = true;
+                }
+                var artist = string.Empty;
+                if (artists != null)
+                {
+                    artist = artists[i];
+                }
+                string songBracket = "ALT=\"" + title.ToUpper() + "\"";
+                string songBracketUnicode = string.Empty;
+                if (divaPage.Contains(songBracket))
+                {
+                    matches.Add(title + " - by " + artist);
+                }
+                else if (containsUnicode == true)
+                {
+                    songBracketUnicode = "ALT=\"" + titlesUni[i].ToUpper() + "\"";
+                    if (divaPage.Contains(songBracketUnicode))
+                    {
+                        matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                    }
+                }
+                Console.WriteLine("Finding matches... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            matches.Sort();
+            matches.ForEach(s => sb.AppendLine(s));
             App.Current.MainWindow.Show();
             FreeConsole();
             resultsList.Visibility = Visibility.Hidden;

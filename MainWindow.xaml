@@ -97,6 +97,11 @@
                     <TextBlock x:Name="ongekisearch" FontSize="14"><Run Text="Ongeki"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="divasearch" FontSize="14"><Run Text="Project DIVA: Future Tone"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Songs directory:" x:Name="dirText" HorizontalAlignment="Left" Margin="162,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
         <Label Content="Playlist URL:" x:Name="urlText" HorizontalAlignment="Left" Margin="188,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109" Visibility="Hidden"/>
