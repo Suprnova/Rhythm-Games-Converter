@@ -2339,10 +2339,6 @@
             for (var i = 0; i < titles.Count; i++)
             {
                 var title = titles[i];
-                if (title == "Ievan Polkka")
-                {
-                    Console.WriteLine();
-                }
                 var titleUnicode = string.Empty;
                 bool containsUnicode = false;
                 if (titlesUni != null)
