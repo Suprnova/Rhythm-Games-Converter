@@ -107,6 +107,11 @@
                     <TextBlock x:Name="arcaeasearch" FontSize="14"><Run Text="Arcaea"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="waccasearch" FontSize="14"><Run Text="WACCA"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Songs directory:" x:Name="dirText" HorizontalAlignment="Left" Margin="162,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
         <Label Content="Playlist URL:" x:Name="urlText" HorizontalAlignment="Left" Margin="188,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109" Visibility="Hidden"/>

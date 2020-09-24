@@ -150,6 +150,10 @@
             {
                 provider.Text = "Arcaea Wikia";
             }
+            else if (search.SelectedIndex == 12)
+            {
+                provider.Text = "marv.jp";
+            }
         }
 
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
@@ -535,6 +539,11 @@
                 DisableButtons();
                 results.Text = ArcaeaMatching(songs, null, artists);
             }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(songs, null, artists);
+            }
         }
 
         private void SourceClone()
@@ -636,6 +645,11 @@
                 DisableButtons();
                 results.Text = ArcaeaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
         }
 
         private void SourceOsu()
@@ -736,6 +750,11 @@
             {
                 DisableButtons();
                 results.Text = ArcaeaMatching(titles, titlesUni, artists);
+            }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, titlesUni, artists);
             }
         }
 
@@ -859,6 +878,11 @@
                 DisableButtons();
                 results.Text = ArcaeaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -959,6 +983,11 @@
             {
                 DisableButtons();
                 results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
             }
         }
 
@@ -2442,6 +2471,60 @@
                 {
                     songBracketUnicode = "TITLE=\"" + titlesUni[i].ToUpper() + "\"";
                     if (arcaeaPage.Contains(songBracketUnicode))
+                    {
+                        matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                    }
+                }
+                Console.WriteLine("Finding matches... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            matches.Sort();
+            matches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
+        public string WaccaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching WACCA song list...");
+            // this php is some really messed up JSON file so it can't be parsed normally
+            string waccaPage = ScrapePage("https://wacca.marv.jp/music/search.php", true).ToUpper();
+            // this php is blank by default, so this code doesn't work right now until I can figure out how to interact with the main webpage.
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                var titleUnicode = string.Empty;
+                bool containsUnicode = false;
+                if (titlesUni != null)
+                {
+                    titleUnicode = titlesUni[i];
+                    containsUnicode = true;
+                }
+                var artist = string.Empty;
+                if (artists != null)
+                {
+                    artist = artists[i];
+                }
+                string songBracket = "\"DISPLAY\":\"" + title.ToUpper() + "\"";
+                string songBracketUnicode = string.Empty;
+                if (waccaPage.Contains(songBracket))
+                {
+                    matches.Add(title + " - by " + artist);
+                }
+                else if (containsUnicode == true)
+                {
+                    songBracketUnicode = "\"DISPLAY\":\"" + titlesUni[i].ToUpper() + "\"";
+                    if (waccaPage.Contains(songBracketUnicode))
                     {
                         matches.Add(titleUnicode + " - (" + title + ") by " + artist);
                     }
