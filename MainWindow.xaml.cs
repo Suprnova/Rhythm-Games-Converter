@@ -121,7 +121,7 @@
             {
                 provider.Text = "Chorus";
             }
-            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8 || search.SelectedIndex == 9)
+            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8 || search.SelectedIndex == 9 || search.SelectedIndex == 10)
             {
                 provider.Text = "SEGA";
             }
@@ -145,6 +145,10 @@
             else if (search.SelectedIndex == 7)
             {
                 provider.Text = "Spotify";
+            }
+            else if (search.SelectedIndex == 11)
+            {
+                provider.Text = "Arcaea Wikia";
             }
         }
 
@@ -526,6 +530,11 @@
                 DisableButtons();
                 results.Text = DivaMatching(songs, null, artists);
             }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(songs, null, artists);
+            }
         }
 
         private void SourceClone()
@@ -622,6 +631,11 @@
                 DisableButtons();
                 results.Text = DivaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
         }
 
         private void SourceOsu()
@@ -717,6 +731,11 @@
             {
                 DisableButtons();
                 results.Text = DivaMatching(titles, titlesUni, artists);
+            }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, titlesUni, artists);
             }
         }
 
@@ -835,6 +854,11 @@
                 DisableButtons();
                 results.Text = DivaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -930,6 +954,11 @@
             {
                 DisableButtons();
                 results.Text = DivaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
             }
         }
 
@@ -2361,6 +2390,58 @@
                 {
                     songBracketUnicode = "ALT=\"" + titlesUni[i].ToUpper() + "\"";
                     if (divaPage.Contains(songBracketUnicode))
+                    {
+                        matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                    }
+                }
+                Console.WriteLine("Finding matches... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            matches.Sort();
+            matches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
+            return sb.ToString();
+        }
+        public string ArcaeaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching Arcaea song list...");
+            string arcaeaPage = ScrapePage("https://arcaea.fandom.com/wiki/Songs_by_Date", true).ToUpper();
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                var titleUnicode = string.Empty;
+                bool containsUnicode = false;
+                if (titlesUni != null)
+                {
+                    titleUnicode = titlesUni[i];
+                    containsUnicode = true;
+                }
+                var artist = string.Empty;
+                if (artists != null)
+                {
+                    artist = artists[i];
+                }
+                string songBracket = "TITLE=\"" + title.ToUpper() + "\"";
+                string songBracketUnicode = string.Empty;
+                if (arcaeaPage.Contains(songBracket))
+                {
+                    matches.Add(title + " - by " + artist);
+                }
+                else if (containsUnicode == true)
+                {
+                    songBracketUnicode = "TITLE=\"" + titlesUni[i].ToUpper() + "\"";
+                    if (arcaeaPage.Contains(songBracketUnicode))
                     {
                         matches.Add(titleUnicode + " - (" + title + ") by " + artist);
                     }
