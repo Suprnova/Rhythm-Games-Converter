@@ -1,0 +1,17 @@
+﻿<Window x:Class="rhythm_games_converter.OptionsQuaver"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rhythm_games_converter"
+        mc:Ignorable="d"
+        Title="Select Gamemodes" Height="120" Width="200"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+    <Grid>
+        <CheckBox Name="fourKeyBox" Content="4K" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" IsChecked="True"/>
+        <CheckBox Name="sevenKeyBox" Content="7K" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" IsChecked="True"/>
+        <Button Content="Apply" HorizontalAlignment="Left" Margin="126,57,0,0" VerticalAlignment="Top" Width="56" Click="Apply_Click"/>
+    </Grid>
+</Window>

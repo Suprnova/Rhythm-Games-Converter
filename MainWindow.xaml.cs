@@ -124,6 +124,15 @@
             public string Artist { get; set; }
         }
 
+        public class QuaverSong
+        {
+            public string Title { get; set; }
+
+            public string Artist { get; set; }
+
+            public string ID { get; set; }
+        }
+
         [DllImport("Kernel32")]
         public static extern void AllocConsole();
 
@@ -175,6 +184,11 @@
             {
                 provider.Text = "marv.jp";
             }
+            else if (search.SelectedIndex == 13)
+            {
+                provider.Text = "Quaver";
+                moreOptions.IsEnabled = true;
+            }
         }
 
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
@@ -206,6 +220,12 @@
                 OptionsBemani optionsBemani = new OptionsBemani();
                 optionsBemani.Owner = this;
                 optionsBemani.ShowDialog();
+            }
+            else if (search.SelectedIndex == 13)
+            {
+                OptionsQuaver optionsQuaver = new OptionsQuaver();
+                optionsQuaver.Owner = this;
+                optionsQuaver.ShowDialog();
             }
         }
 
@@ -565,6 +585,27 @@
                 DisableButtons();
                 results.Text = WaccaMatching(songs, null, artists);
             }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                Globals.Links = QuaverMatching(songs, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
         }
 
         private void SourceClone()
@@ -671,6 +712,27 @@
                 DisableButtons();
                 results.Text = WaccaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                Globals.Links = QuaverMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
         }
 
         private void SourceOsu()
@@ -776,6 +838,27 @@
             {
                 DisableButtons();
                 results.Text = WaccaMatching(titles, titlesUni, artists);
+            }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                Globals.Links = QuaverMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
             }
         }
 
@@ -904,6 +987,27 @@
                 DisableButtons();
                 results.Text = WaccaMatching(titles, null, artists);
             }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                Globals.Links = QuaverMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
         }
 
         private void SourceBeatSaber()
@@ -1009,6 +1113,27 @@
             {
                 DisableButtons();
                 results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                Globals.Links = QuaverMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
             }
         }
 
@@ -2572,6 +2697,94 @@
                 sb.AppendLine("No matches :(");
                 results.FontSize = 50;
             }
+            return sb.ToString();
+        }
+        public string QuaverMatching(List<string> titles, List<string> artists)
+        {
+            var json = string.Empty;
+            var quaverMatches = new List<string>();
+            var quaverLinks = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Searching Quaver songs...");
+            var selections = new System.Text.StringBuilder();
+            if (fourKeySelection.Text == "1")
+            {
+                selections.Append("&mode=1");
+            }
+            if (sevenKeySelection.Text == "1")
+            {
+                selections.Append("&mode=2");
+            }
+            bool hasArtist = false;
+            if (artists != null)
+            {
+                hasArtist = true;
+            }
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                var artist = string.Empty;
+                if (hasArtist)
+                {
+                    artist = artists[i];
+                }
+                try
+                {
+                    using (WebClient wc = new WebClient())
+                    {
+                        json = wc.DownloadString("https://api.quavergame.com/v1/mapsets/maps/search?search=" + title + selections.ToString());
+                    }
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Searching Quaver songs... " + i + "/" + titles.Count);
+                    continue;
+                }
+                if (json.Length < 50)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Searching Quaver songs... " + i + "/" + titles.Count);
+                    continue;
+                }
+                JObject quaverSearch = JObject.Parse(json);
+                IList<JToken> results = quaverSearch["mapsets"].Children().ToList();
+                IList<QuaverSong> quaverSongs = new List<QuaverSong>();
+                foreach (JToken result in results)
+                {
+                    QuaverSong quaverSong = result.ToObject<QuaverSong>();
+                    if (quaverSong.Title.ToUpper() == title.ToUpper())
+                    {
+                        if (hasArtist)
+                        {
+                            if (quaverSong.Artist.ToUpper() == artist.ToUpper())
+                            {
+                                quaverMatches.Add(quaverSong.Title + " by " + quaverSong.Artist);
+                                quaverLinks.Add("https://quavergame.com/download/maps/" + quaverSong.ID);
+                            }
+                        }
+                        else
+                        {
+                            quaverMatches.Add(quaverSong.Title + " by " + quaverSong.Artist);
+                            quaverLinks.Add("https://quavergame.com/download/maps/" + quaverSong.ID);
+                        }
+                    }
+                }
+                Console.Clear();
+                Console.WriteLine("Searching Quaver songs... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            quaverMatches.ForEach(s => resultsList.Items.Add(s));
+            try
+            {
+                resultsList.SelectedIndex = 0;
+            }
+            catch
+            {
+            }
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            quaverLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
     }

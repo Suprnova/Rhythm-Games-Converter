@@ -112,6 +112,11 @@
                     <TextBlock x:Name="waccasearch" FontSize="14"><Run Text="WACCA"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="quaversearch" FontSize="14"><Run Text="Quaver"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Songs directory:" x:Name="dirText" HorizontalAlignment="Left" Margin="162,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109"/>
         <Label Content="Playlist URL:" x:Name="urlText" HorizontalAlignment="Left" Margin="188,9,0,0" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Height="29" Width="109" Visibility="Hidden"/>
@@ -146,6 +151,8 @@
         <TextBlock x:Name="nostalgiaSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top" Text="1"/>
         <TextBlock x:Name="drsdSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,32,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top" Text="1"/>
         <TextBlock x:Name="musecaSelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top" Text="1"/>
+        <TextBlock x:Name="fourKeySelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top" Text="1"/>
+        <TextBlock x:Name="sevenKeySelection" Grid.Column="1" HorizontalAlignment="Left" Margin="69,48,0,0" Grid.Row="1" TextWrapping="Wrap" Visibility="Hidden" VerticalAlignment="Top" Text="1"/>
         <Button x:Name="add" Content="Add Selected to Playlist" Grid.Column="1" HorizontalAlignment="Left" Margin="163,531,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="147" Click="AddPlaylist_Click" Visibility="Hidden"/>
         <Button x:Name="addAll" Content="Add All to Playlist" Grid.Column="1" HorizontalAlignment="Left" Margin="323,531,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="116" Click="AddAll_Click" Visibility="Hidden"/>
         <Button x:Name="authenticate" Content="Authenticate Spotify" Grid.Column="1" HorizontalAlignment="Left" Margin="200,530,0,0" Grid.Row="1" VerticalAlignment="Top" Height="32" Width="154" Click="Authentication_Click" Visibility="Hidden"/>
