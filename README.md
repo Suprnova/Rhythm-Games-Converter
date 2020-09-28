@@ -25,6 +25,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Chunithm (via [SEGA](https://chunithm.sega.jp/))
 * Ongeki (via [SEGA](https://ongeki.sega.jp/))
 * Project DIVA Future Tone (via [SEGA](https://miku.sega.com))
+* WACCA (via [marv.jp](https://wacca.marv.jp))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
