@@ -44,6 +44,11 @@
                     <TextBlock x:Name="spotifysource" FontSize="14"><Run Text="Spotify"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="quaversource" FontSize="14"><Run Text="Quaver"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
         </ComboBox>
         <Label Content="Search:" HorizontalAlignment="Left" Margin="64,11,0,0" VerticalAlignment="Top" FontSize="14" Height="29" Width="61" Grid.Row="1"/>
         <ComboBox HorizontalAlignment="Left" Margin="134,10,0,0" VerticalAlignment="Top" Width="182" Height="25" x:Name="search" SelectionChanged="SearchChanged" Grid.ColumnSpan="2" Grid.Row="1">

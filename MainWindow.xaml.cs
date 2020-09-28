@@ -318,6 +318,10 @@
                 {
                     item = "Beat Saber";
                 }
+                else if (source.SelectedIndex == 5)
+                {
+                    item = "Quaver";
+                }
                 var request = new PlaylistCreateRequest("Rhythm Games Converter - " + item);
                 var user = await spotify.UserProfile.Current();
                 var playlist = await spotify.Playlists.Create(user.Id, request);
@@ -366,6 +370,10 @@
                 {
                     item = "Beat Saber";
                 }
+                else if (source.SelectedIndex == 5)
+                {
+                    item = "Quaver";
+                }
                 var request = new PlaylistCreateRequest("Rhythm Games Converter - " + item);
                 var user = await spotify.UserProfile.Current();
                 var playlist = await spotify.Playlists.Create(user.Id, request);
@@ -382,7 +390,7 @@
 
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
-            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6) || (source.SelectedIndex == 4 && search.SelectedIndex == 7))
+            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6) || (source.SelectedIndex == 4 && search.SelectedIndex == 7) || (source.SelectedIndex == 5 && search.SelectedIndex == 13))
             {
                 MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
                 return;
@@ -409,6 +417,10 @@
                 else if (source.SelectedIndex == 3)
                 {
                     SourceBeatSaber();
+                }
+                else if (source.SelectedIndex == 5)
+                {
+                    SourceQuaver();
                 }
                 else
                 {
@@ -605,6 +617,111 @@
                     while (line != null);
                     download.IsEnabled = true;
                 }
+            }
+        }
+        private void SourceQuaver()
+        {
+            (List<string> titles, List<string> artists) = QuaverFiles(dir.Text);
+            foreach (string title in titles)
+            {
+                if (!string.IsNullOrWhiteSpace(title))
+                {
+                    sourceSongs.Items.Add(title);
+                }
+            }
+            sourceSongs.Items.SortDescriptions.Add(
+            new SortDescription("", ListSortDirection.Ascending));
+            if (search.SelectedIndex == 0)
+            {
+                DisableButtons();
+                results.Text = BEMANIMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 2)
+            {
+                DisableButtons();
+                results.Text = MaiMaiMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 3)
+            {
+                DisableButtons();
+                results.Text = DJMAXMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 4)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                Globals.Links = OsuMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
+            else if (search.SelectedIndex == 6)
+            {
+                DisableButtons();
+                Globals.Links = BeatSaberMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
+            else if (search.SelectedIndex == 7)
+            {
+                DisableButtons();
+                SpotifyMatching(titles, artists);
+            }
+            else if (search.SelectedIndex == 8)
+            {
+                DisableButtons();
+                results.Text = ChunithmMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 9)
+            {
+                DisableButtons();
+                results.Text = OngekiMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 10)
+            {
+                DisableButtons();
+                results.Text = DivaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 11)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 12)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
             }
         }
 
@@ -1161,6 +1278,53 @@
                 }
                 return page;
             }
+        }
+
+        public (List<string> titles, List<string> artists) QuaverFiles(string directory)
+        {
+            App.Current.MainWindow.Hide();
+            AllocConsole();
+            Console.Title = "Rhythm Games Converter";
+            Console.WriteLine("Indexing Quaver files...");
+            string[] files = Directory.GetFiles(directory, "*.qua", SearchOption.AllDirectories);
+            var titles = new List<string>();
+            var artists = new List<string>();
+            int i = 0;
+            foreach (string file in files)
+            {
+                string result = string.Empty;
+                string resultArtist = string.Empty;
+                i++;
+                var lines = File.ReadAllLines(file);
+                foreach (var line in lines)
+                {
+                    if (line.Contains("Title:")) // title saved
+                    {
+                        var text = line.Replace("Title:", string.Empty);
+                        result = text.Trim();
+                    }
+                    else if (line.Contains("Artist:"))
+                    {
+                        var text = line.Replace("Artist:", string.Empty);
+                        resultArtist = text.Trim();
+                    }
+                    else if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(resultArtist)) // title and artist filled, move on
+                    {
+                        if (!titles.Contains(result))
+                        {
+                            titles.Add(result);
+                            artists.Add(resultArtist);
+                            break;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                Console.WriteLine("Indexing Quaver files... " + i + "/" + files.Length);
+            }
+            return (titles, artists);
         }
 
         public (List<string> titles, List<string> artists) CloneFiles(string directory)
