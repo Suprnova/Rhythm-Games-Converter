@@ -12,6 +12,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Stepmania
 * Beat Saber
 * Spotify
+* Quaver
 
 # Supported Searches:
 * BEMANI (via [BEMANIWiki](https://bemaniwiki.com/))
@@ -26,10 +27,11 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Ongeki (via [SEGA](https://ongeki.sega.jp/))
 * Project DIVA Future Tone (via [SEGA](https://miku.sega.com))
 * WACCA (via [marv.jp](https://wacca.marv.jp))
+* Quaver (via [Quaver](https://quavergame.com/))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
 
-Select the game you want to use as a source from the dropdown, then select the game you want to search through. Enter the directory for your source game's songs folder in the Songs Directory textbox. (You can get more help finding your directory with [this link](https://osu.ppy.sh/help/wiki/osu!_Program_Files) for osu!, [this link](https://raw.githubusercontent.com/stepmania/stepmania/5_1-new/Docs/Userdocs/sm5_beginner.txt) on section 2.3.1 for Stepmania, [this link](https://www.reddit.com/r/CloneHero/comments/9gbcnc/how_do_we_add_songs/e62sjyr?utm_source=share&utm_medium=web2x&context=3) for Clone Hero, and [this link](https://uploadvr.com/download-install-new-custom-songs-beat-saber/#Installing) for Beat Saber). If you selected Spotify, paste your Spotify playlist URL in the textbox. Select a provider, if applicable, then hit Search!
+Select the game you want to use as a source from the dropdown, then select the game you want to search through. Enter the directory for your source game's songs folder in the Songs Directory textbox. (You can get more help finding your directory with [this link](https://osu.ppy.sh/help/wiki/osu!_Program_Files) for osu!, [this link](https://raw.githubusercontent.com/stepmania/stepmania/5_1-new/Docs/Userdocs/sm5_beginner.txt) on section 2.3.1 for Stepmania, [this link](https://www.reddit.com/r/CloneHero/comments/9gbcnc/how_do_we_add_songs/e62sjyr?utm_source=share&utm_medium=web2x&context=3) for Clone Hero, [this link](https://uploadvr.com/download-install-new-custom-songs-beat-saber/#Installing) for Beat Saber, and [this link](https://www.reddit.com/r/Steam/comments/3xixax/where_are_games_stored/cy501v1?utm_source=share&utm_medium=web2x&context=3) for Quaver). If you selected Spotify, paste your Spotify playlist URL in the textbox. Select a provider, if applicable, then hit Search!
 
 A console window will appear and the program will begin searching. Depending on your selections, it might take a while to search for everything, but you'll always be given a progress indicator to let you know how much more is left. Once the console disappears, you will have a list of your source games on the left and a list of matches on the right. For some games, you'll be able to select a song and click Download/Open on the bottom right of your screen to open a link to the song in your browser. Otherwise, copy the information on the right and use it as reference when you need to. (For example, adding songs to your favourites from the eAmusement website or with the proprietary modular arcade server that is used at your local arcade.)
