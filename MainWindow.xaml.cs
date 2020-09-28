@@ -2844,7 +2844,7 @@
                     {
                         if ((song.Title.Display.ToUpper() == titleUnicode.ToUpper()) || song.Title.Ruby.ToUpper() == titleUnicode.ToUpper())
                         {
-                            matches.Add(titleUnicode + " (" + title + ") by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
+                            matches.Add(title + " (" + titleUnicode + ") by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
                         }
                     }
                 }
