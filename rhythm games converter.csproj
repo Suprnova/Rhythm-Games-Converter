@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
+    <PackageReference Include="RestSharp" Version="106.11.5" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.0.0-beta.11" />
     <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0-beta.11" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />

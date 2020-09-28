@@ -13,6 +13,7 @@
     using System.Windows.Controls;
     using Newtonsoft.Json.Linq;
     using Ookii.Dialogs.Wpf;
+    using RestSharp;
     using SpotifyAPI.Web;
     using SpotifyAPI.Web.Auth;
 
@@ -60,6 +61,26 @@
             public string Charter { get; set; }
         }
 
+        public class WaccaSong
+        {
+            public TitleList Title { get; set; }
+
+            public class TitleList
+            {
+                public string Ruby { get; set; }
+
+                public string Display { get; set; }
+            }
+
+            public ArtistList Artist { get; set; }
+
+            public class ArtistList
+            {
+                public string Ruby { get; set; }
+
+                public string Display { get; set; }
+            }
+        }
         public class BeatSong
         {
             public string Key { get; set; }
@@ -2371,7 +2392,7 @@
                     }
                 }
 
-                Console.WriteLine("Searching Chunithm songs... " + i + "/" + titles.Count);
+                Console.WriteLine("Searching Ongeki songs... " + i + "/" + titles.Count);
             }
             var sb = new StringBuilder(4096);
             ongekiMatches.Sort();
@@ -2495,9 +2516,13 @@
             var matches = new List<string>();
             Console.Clear();
             Console.WriteLine("Fetching WACCA song list...");
-            // this php is some really messed up JSON file so it can't be parsed normally
-            string waccaPage = ScrapePage("https://wacca.marv.jp/music/search.php", true).ToUpper();
-            // this php is blank by default, so this code doesn't work right now until I can figure out how to interact with the main webpage.
+            var client = new RestClient("https://wacca.marv.jp");
+            var request = new RestRequest("music/search.php", RestSharp.DataFormat.Json);
+            request.AddParameter("cat", "all");
+            var response = client.Post(request);
+            JArray waccaSongs = JArray.Parse(response.Content);
+            IList<JToken> waccaSongsList = waccaSongs.Children().ToList();
+            string waccaPage = response.Content;
             Console.Clear();
             Console.WriteLine("Finding matches...");
             for (var i = 0; i < titles.Count; i++)
@@ -2515,18 +2540,22 @@
                 {
                     artist = artists[i];
                 }
-                string songBracket = "\"DISPLAY\":\"" + title.ToUpper() + "\"";
-                string songBracketUnicode = string.Empty;
-                if (waccaPage.Contains(songBracket))
+                foreach (JToken result in waccaSongsList)
                 {
-                    matches.Add(title + " - by " + artist);
-                }
-                else if (containsUnicode == true)
-                {
-                    songBracketUnicode = "\"DISPLAY\":\"" + titlesUni[i].ToUpper() + "\"";
-                    if (waccaPage.Contains(songBracketUnicode))
+                    WaccaSong song = result.ToObject<WaccaSong>();
+                    if ((song.Title.Display.ToUpper() == title.ToUpper()) || song.Title.Ruby.ToUpper() == title.ToUpper())
                     {
-                        matches.Add(titleUnicode + " - (" + title + ") by " + artist);
+                        //if ((song.Artist.Display == artist.ToUpper()) || song.Artist.Ruby == artist.ToUpper())
+                        //{
+                            matches.Add(title + " by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
+                        //}
+                    }
+                    else if (containsUnicode == true)
+                    {
+                        if ((song.Title.Display.ToUpper() == titleUnicode.ToUpper()) || song.Title.Ruby.ToUpper() == titleUnicode.ToUpper())
+                        {
+                            matches.Add(titleUnicode + " (" + title + ") by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
+                        }
                     }
                 }
                 Console.WriteLine("Finding matches... " + i + "/" + titles.Count);
