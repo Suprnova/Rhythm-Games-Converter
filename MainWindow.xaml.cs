@@ -2515,6 +2515,10 @@
         {
             var matches = new List<string>();
             Console.Clear();
+            if (titlesUni == null)
+            {
+                MessageBox.Show("These results may be inaccurate because the source you selected does not contain Unicode titles.", "Notice");
+            }
             Console.WriteLine("Fetching WACCA song list...");
             var client = new RestClient("https://wacca.marv.jp");
             var request = new RestRequest("music/search.php", RestSharp.DataFormat.Json);
@@ -2545,10 +2549,7 @@
                     WaccaSong song = result.ToObject<WaccaSong>();
                     if ((song.Title.Display.ToUpper() == title.ToUpper()) || song.Title.Ruby.ToUpper() == title.ToUpper())
                     {
-                        //if ((song.Artist.Display == artist.ToUpper()) || song.Artist.Ruby == artist.ToUpper())
-                        //{
-                            matches.Add(title + " by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
-                        //}
+                        matches.Add(title + " by " + song.Artist.Display + " (" + song.Artist.Ruby + ")");
                     }
                     else if (containsUnicode == true)
                     {
