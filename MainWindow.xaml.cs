@@ -189,6 +189,10 @@
                 provider.Text = "Quaver";
                 moreOptions.IsEnabled = true;
             }
+            else if (search.SelectedIndex == 14)
+            {
+                provider.Text = "Gamepedia";
+            }
         }
 
         private void SourceChanged(object sender, SelectionChangedEventArgs e)
@@ -618,6 +622,11 @@
                     download.IsEnabled = true;
                 }
             }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(songs, null, artists);
+            }
         }
         private void SourceQuaver()
         {
@@ -722,6 +731,11 @@
             {
                 DisableButtons();
                 results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(titles, null, artists);
             }
         }
 
@@ -850,6 +864,11 @@
                     download.IsEnabled = true;
                 }
             }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(titles, null, artists);
+            }
         }
 
         private void SourceOsu()
@@ -976,6 +995,11 @@
                     while (line != null);
                     download.IsEnabled = true;
                 }
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(titles, titlesUni, artists);
             }
         }
 
@@ -1125,6 +1149,11 @@
                     download.IsEnabled = true;
                 }
             }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(titles, null, artists);
+            }
         }
 
         private void SourceBeatSaber()
@@ -1251,6 +1280,11 @@
                     while (line != null);
                     download.IsEnabled = true;
                 }
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = MuseMatching(titles, null, artists);
             }
         }
 
@@ -2949,6 +2983,120 @@
             App.Current.MainWindow.Show();
             FreeConsole();
             quaverLinks.ForEach(s => sb.AppendLine(s));
+            return sb.ToString();
+        }
+
+        public string MuseMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+        {
+            var matches = new List<string>();
+            Console.Clear();
+            Console.WriteLine("Fetching Muse Dash song list...");
+            string musePage = ScrapePage("https://musedash.gamepedia.com/Songs", true).ToUpper();
+            Console.Clear();
+            Console.WriteLine("Finding matches...");
+            for (var i = 0; i < titles.Count; i++)
+            {
+                var title = titles[i];
+                if (title.Contains("MilK") || title.Contains("Berry Go!!"))
+                {
+                    Console.WriteLine();
+                }
+                var titleUnicode = string.Empty;
+                bool containsUnicode = false;
+                if (titlesUni != null)
+                {
+                    titleUnicode = titlesUni[i];
+                    containsUnicode = false;
+                }
+                var artist = string.Empty;
+                bool containsArtist = false;
+                if (artists != null)
+                {
+                    containsArtist = true;
+                    artist = artists[i];
+                }
+                string songBracket = "<TD>" + title.ToUpper();
+                string songBracketHref = ">" + title.ToUpper() + "</A>";
+                string songBracketUnicode = string.Empty;
+                string songBracketUnicodeHref = string.Empty;
+                string artistBracket = string.Empty;
+                if (containsUnicode)
+                {
+                    songBracketUnicode = "<TD>" + titleUnicode.ToUpper();
+                    songBracketUnicodeHref = ">" + titleUnicode.ToUpper() + "</A>";
+                }
+                else
+                {
+                    songBracketUnicode = "<NOT AVAILABLE>";
+                    songBracketUnicodeHref = "<NOT AVAILABLE>";
+                }
+                if (containsArtist)
+                {
+                    artistBracket = "<TD>" + artist.ToUpper();
+                }
+                using var sr = new StringReader(musePage);
+                int lineCount = 0;
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line.Contains(songBracket) || line.Contains(songBracketUnicode) || line.Contains(songBracketHref) || line.Contains(songBracketUnicodeHref))
+                    {
+                        if (containsArtist)
+                        {
+                            int lineCount2 = 0;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                lineCount2++;
+                                if (lineCount2 == 2) //artist is always 2 lines down from title
+                                {
+                                    if (line.Contains(artistBracket)) //avoids problems with "feat." and other things like that
+                                    {
+                                        using var sr2 = new StringReader(musePage);
+                                        string line3;
+                                        string caption = string.Empty;
+                                        while ((line3 = sr2.ReadLine()) != null)
+                                        {
+                                            if (line3.Contains("<CAPTION>"))
+                                            {
+                                                caption = line3.Replace("<CAPTION>", "");
+                                            }
+                                            if (line3.Contains(line))
+                                            {
+                                                matches.Add(caption + " - " + title + " by " + artist);
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            matches.Add(title);
+                            break;
+                        }
+                    }
+                    lineCount++;
+                }
+                Console.WriteLine("Finding matches... " + i + "/" + titles.Count);
+            }
+            var sb = new StringBuilder(4096);
+            matches.Sort();
+            matches.ForEach(s => sb.AppendLine(s));
+            App.Current.MainWindow.Show();
+            FreeConsole();
+            resultsList.Visibility = Visibility.Hidden;
+            if (sb.Length == 0)
+            {
+                sb.AppendLine("No matches :(");
+                results.FontSize = 50;
+            }
             return sb.ToString();
         }
     }
