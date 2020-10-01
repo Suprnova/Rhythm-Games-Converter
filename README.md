@@ -28,6 +28,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Project DIVA Future Tone (via [SEGA](https://miku.sega.com))
 * WACCA (via [marv.jp](https://wacca.marv.jp))
 * Quaver (via [Quaver](https://quavergame.com/))
+* Muse Dash (via [Gamepedia](https://musedash.gamepedia.com/Songs))
 
 # Usage:
 ![Tutorial Image](https://cdn.discordapp.com/attachments/603730493074046978/750395544127668344/unknown.png)
