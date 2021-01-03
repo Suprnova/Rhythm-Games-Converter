@@ -17,6 +17,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 # Supported Searches:
 * BEMANI (via [BEMANIWiki](https://bemaniwiki.com/))
 * Clone Hero (via [Chorus](https://chorus.fightthe.pw/))
+* maimai (via [SEGA](https://maimai.sega.jp/)
 * maimai International Version (via [SEGA](https://maimai.sega.com/))
 * DJMAX RESPECT (via [Cypher Gate](https://cyphergate.net/))
 * GROOVE COASTER (via [groovecoaster.jp](https://groovecoaster.jp/))
@@ -24,6 +25,7 @@ For example, you can search for BEMANI songs that are also in your osu! songs fo
 * Beat Saber (via [Beat Saver](https://beatsaver.com/))
 * Spotify (via [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET))
 * Chunithm (via [SEGA](https://chunithm.sega.jp/))
+* Chunithm International (via [SEGA](https://chunithm.sega.com)
 * Ongeki (via [SEGA](https://ongeki.sega.jp/))
 * Project DIVA Future Tone (via [SEGA](https://miku.sega.com))
 * WACCA (via [marv.jp](https://wacca.marv.jp))

@@ -64,7 +64,12 @@
             </ComboBoxItem>
             <ComboBoxItem>
                 <StackPanel>
-                    <TextBlock x:Name="maimai" FontSize="14"><Run Text="maimai"/></TextBlock>
+                    <TextBlock x:Name="maimai" FontSize="14"><Run Text="maimai Japan"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="maimaiInt" FontSize="14"><Run Text="maimai International"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
             <ComboBoxItem>
@@ -94,7 +99,12 @@
             </ComboBoxItem>
             <ComboBoxItem>
                 <StackPanel>
-                    <TextBlock x:Name="chunithmsearch" FontSize="14"><Run Text="Chungithm"/></TextBlock>
+                    <TextBlock x:Name="chunithmsearch" FontSize="14"><Run Text="Chunithm Japan"/></TextBlock>
+                </StackPanel>
+            </ComboBoxItem>
+            <ComboBoxItem>
+                <StackPanel>
+                    <TextBlock x:Name="chunithmsearchInt" FontSize="14"><Run Text="Chunithm International"/></TextBlock>
                 </StackPanel>
             </ComboBoxItem>
             <ComboBoxItem>

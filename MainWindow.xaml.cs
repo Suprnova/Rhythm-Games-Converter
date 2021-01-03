@@ -81,6 +81,7 @@
                 public string Display { get; set; }
             }
         }
+
         public class BeatSong
         {
             public string Key { get; set; }
@@ -151,45 +152,45 @@
             {
                 provider.Text = "Chorus";
             }
-            else if (search.SelectedIndex == 2 || search.SelectedIndex == 8 || search.SelectedIndex == 9 || search.SelectedIndex == 10)
+            else if (search.SelectedIndex == 2 || search.SelectedIndex == 3 || search.SelectedIndex == 9 || search.SelectedIndex == 10 || search.SelectedIndex == 11 || search.SelectedIndex == 12)
             {
                 provider.Text = "SEGA";
             }
-            else if (search.SelectedIndex == 3)
+            else if (search.SelectedIndex == 4)
             {
                 provider.Text = "Cypher Gate";
             }
-            else if (search.SelectedIndex == 4)
+            else if (search.SelectedIndex == 5)
             {
                 provider.Text = "groovecoaster.jp";
             }
-            else if (search.SelectedIndex == 5)
+            else if (search.SelectedIndex == 6)
             {
                 provider.Text = "osusearch";
                 moreOptions.IsEnabled = true;
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 7)
             {
                 provider.Text = "Beat Saver";
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 provider.Text = "Spotify";
             }
-            else if (search.SelectedIndex == 11)
+            else if (search.SelectedIndex == 13)
             {
                 provider.Text = "Arcaea Wikia";
             }
-            else if (search.SelectedIndex == 12)
+            else if (search.SelectedIndex == 14)
             {
                 provider.Text = "marv.jp";
             }
-            else if (search.SelectedIndex == 13)
+            else if (search.SelectedIndex == 15)
             {
                 provider.Text = "Quaver";
                 moreOptions.IsEnabled = true;
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 provider.Text = "Gamepedia";
             }
@@ -213,7 +214,7 @@
 
         private void moreOptions_Click(object sender, RoutedEventArgs e)
         {
-            if (search.SelectedIndex == 5)
+            if (search.SelectedIndex == 6)
             {
                 Options options = new Options();
                 options.Owner = this;
@@ -225,7 +226,7 @@
                 optionsBemani.Owner = this;
                 optionsBemani.ShowDialog();
             }
-            else if (search.SelectedIndex == 13)
+            else if (search.SelectedIndex == 15)
             {
                 OptionsQuaver optionsQuaver = new OptionsQuaver();
                 optionsQuaver.Owner = this;
@@ -283,6 +284,7 @@
             await _server.Stop();
             Globals.SpotifyToken = response.AccessToken;
         }
+
         private static async Task SpotifyConfig()
         {
             _server = new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
@@ -391,10 +393,9 @@
             MessageBox.Show("Added selected song to a Spotify playlist labelled \"Rhythm Games Converter\"", "Success");
         }
 
-
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
-            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 5) || (source.SelectedIndex == 3 && search.SelectedIndex == 6) || (source.SelectedIndex == 4 && search.SelectedIndex == 7) || (source.SelectedIndex == 5 && search.SelectedIndex == 13))
+            if ((source.SelectedIndex == 1 && search.SelectedIndex == 1) || (source.SelectedIndex == 0 && search.SelectedIndex == 6) || (source.SelectedIndex == 3 && search.SelectedIndex == 7) || (source.SelectedIndex == 4 && search.SelectedIndex == 8) || (source.SelectedIndex == 5 && search.SelectedIndex == 15))
             {
                 MessageBox.Show("You cannot use the same game as the source and the search.", "Error");
                 return;
@@ -522,19 +523,24 @@
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(songs, null);
+                results.Text = MaiMaiMatching(songs, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(songs, null, artists);
+                results.Text = MaiMaiMatching(songs, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(songs, null);
+                results.Text = DJMAXMatching(songs, null, artists);
             }
             else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(songs, null);
+            }
+            else if (search.SelectedIndex == 6)
             {
                 DisableButtons();
                 Globals.Links = OsuMatching(songs, artists);
@@ -555,7 +561,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 7)
             {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(songs, artists);
@@ -576,32 +582,37 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(songs, null, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(songs, null, artists);
+                results.Text = ChunithmMatching(songs, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(songs, null, artists);
+                results.Text = ChunithmMatching(songs, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(songs, null, artists);
+                results.Text = OngekiMatching(songs, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(songs, null, artists);
+                results.Text = DivaMatching(songs, null, artists);
             }
             else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(songs, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(songs, null, artists);
+            }
+            else if (search.SelectedIndex == 15)
             {
                 DisableButtons();
                 Globals.Links = QuaverMatching(songs, artists);
@@ -622,12 +633,13 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
                 results.Text = MuseMatching(songs, null, artists);
             }
         }
+
         private void SourceQuaver()
         {
             (List<string> titles, List<string> artists) = QuaverFiles(dir.Text);
@@ -645,22 +657,48 @@
                 DisableButtons();
                 results.Text = BEMANIMatching(titles, null);
             }
+            else if (search.SelectedIndex == 1)
+            {
+                DisableButtons();
+                Globals.Links = CloneMatching(titles, artists);
+                int i = 0;
+                using (StringReader reader = new StringReader(Globals.Links))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = reader.ReadLine();
+                        if (line != null)
+                        {
+                            Globals.LinksFinal[i] = line;
+                            i++;
+                        }
+                    }
+                    while (line != null);
+                    download.IsEnabled = true;
+                }
+            }
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(titles, null);
+                results.Text = MaiMaiMatching(titles, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(titles, null, artists);
+                results.Text = MaiMaiMatching(titles, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 6)
             {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
@@ -681,7 +719,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 7)
             {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
@@ -702,37 +740,42 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(titles, null, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(titles, null, artists);
+                results.Text = OngekiMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(titles, null, artists);
+                results.Text = DivaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
                 results.Text = MuseMatching(titles, null, artists);
@@ -759,19 +802,24 @@
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(titles, null);
+                results.Text = MaiMaiMatching(titles, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(titles, null, artists);
+                results.Text = MaiMaiMatching(titles, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 6)
             {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
@@ -792,7 +840,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 7)
             {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
@@ -813,37 +861,42 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(titles, null, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(titles, null, artists);
+                results.Text = OngekiMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(titles, null, artists);
+                results.Text = DivaMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 15)
             {
                 DisableButtons();
                 Globals.Links = QuaverMatching(titles, artists);
@@ -864,7 +917,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
                 results.Text = MuseMatching(titles, null, artists);
@@ -886,7 +939,7 @@
             if (search.SelectedIndex == 0)
             {
                 DisableButtons();
-                results.Text = BEMANIMatching(titles, titlesUni);
+                results.Text = BEMANIMatching(titles, null);
             }
             else if (search.SelectedIndex == 1)
             {
@@ -912,19 +965,24 @@
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(titles, titlesUni);
+                results.Text = MaiMaiMatching(titles, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(titles, titlesUni, artists);
+                results.Text = MaiMaiMatching(titles, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(titles, titlesUni);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 7)
             {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
@@ -945,37 +1003,42 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(titles, titlesUni, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(titles, titlesUni, artists);
+                results.Text = ChunithmMatching(titles, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(titles, titlesUni, artists);
+                results.Text = ChunithmMatching(titles, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(titles, titlesUni, artists);
+                results.Text = OngekiMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(titles, titlesUni, artists);
+                results.Text = DivaMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 15)
             {
                 DisableButtons();
                 Globals.Links = QuaverMatching(titles, artists);
@@ -996,10 +1059,10 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
-                results.Text = MuseMatching(titles, titlesUni, artists);
+                results.Text = MuseMatching(titles, null, artists);
             }
         }
 
@@ -1044,19 +1107,24 @@
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(titles, null);
+                results.Text = MaiMaiMatching(titles, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(titles, null, artists);
+                results.Text = MaiMaiMatching(titles, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 6)
             {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
@@ -1077,7 +1145,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 6)
+            else if (search.SelectedIndex == 7)
             {
                 DisableButtons();
                 Globals.Links = BeatSaberMatching(titles, artists);
@@ -1098,37 +1166,42 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(titles, null, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(titles, null, artists);
+                results.Text = OngekiMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(titles, null, artists);
+                results.Text = DivaMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 15)
             {
                 DisableButtons();
                 Globals.Links = QuaverMatching(titles, artists);
@@ -1149,7 +1222,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
                 results.Text = MuseMatching(titles, null, artists);
@@ -1197,19 +1270,24 @@
             else if (search.SelectedIndex == 2)
             {
                 DisableButtons();
-                results.Text = MaiMaiMatching(titles, null);
+                results.Text = MaiMaiMatching(titles, null, false);
             }
             else if (search.SelectedIndex == 3)
             {
                 DisableButtons();
-                results.Text = DJMAXMatching(titles, null, artists);
+                results.Text = MaiMaiMatching(titles, null, true);
             }
             else if (search.SelectedIndex == 4)
             {
                 DisableButtons();
-                results.Text = GrooveCoasterMatching(titles, null);
+                results.Text = DJMAXMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 5)
+            {
+                DisableButtons();
+                results.Text = GrooveCoasterMatching(titles, null);
+            }
+            else if (search.SelectedIndex == 6)
             {
                 DisableButtons();
                 Globals.Links = OsuMatching(titles, artists);
@@ -1230,37 +1308,42 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 7)
+            else if (search.SelectedIndex == 8)
             {
                 DisableButtons();
                 SpotifyMatching(titles, artists);
             }
-            else if (search.SelectedIndex == 8)
-            {
-                DisableButtons();
-                results.Text = ChunithmMatching(titles, null, artists);
-            }
             else if (search.SelectedIndex == 9)
             {
                 DisableButtons();
-                results.Text = OngekiMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, false);
             }
             else if (search.SelectedIndex == 10)
             {
                 DisableButtons();
-                results.Text = DivaMatching(titles, null, artists);
+                results.Text = ChunithmMatching(titles, null, artists, true);
             }
             else if (search.SelectedIndex == 11)
             {
                 DisableButtons();
-                results.Text = ArcaeaMatching(titles, null, artists);
+                results.Text = OngekiMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 12)
             {
                 DisableButtons();
-                results.Text = WaccaMatching(titles, null, artists);
+                results.Text = DivaMatching(titles, null, artists);
             }
             else if (search.SelectedIndex == 13)
+            {
+                DisableButtons();
+                results.Text = ArcaeaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 14)
+            {
+                DisableButtons();
+                results.Text = WaccaMatching(titles, null, artists);
+            }
+            else if (search.SelectedIndex == 15)
             {
                 DisableButtons();
                 Globals.Links = QuaverMatching(titles, artists);
@@ -1281,7 +1364,7 @@
                     download.IsEnabled = true;
                 }
             }
-            else if (search.SelectedIndex == 14)
+            else if (search.SelectedIndex == 16)
             {
                 DisableButtons();
                 results.Text = MuseMatching(titles, null, artists);
@@ -2200,7 +2283,7 @@
             return sb.ToString();
         }
 
-        public string MaiMaiMatching(List<string> titles, List<string> titlesUni)
+        public string MaiMaiMatching(List<string> titles, List<string> titlesUni, bool international)
         {
             var json = string.Empty;
             var maimaiMatches = new List<string>();
@@ -2212,7 +2295,14 @@
             Console.WriteLine("Matching maimai songs...");
             using (WebClient wc = new WebClient())
             {
-                json = wc.DownloadString("https://maimai.sega.com/data/DXsongs.json");
+                if (international)
+                {
+                    json = wc.DownloadString("https://maimai.sega.com/data/DXsongs.json");
+                }
+                else
+                {
+                    json = wc.DownloadString("https://maimai.sega.jp/data/DXsongs.json");
+                }
             }
             JArray maimaiSongs = JArray.Parse(json);
             IList<JToken> maimaiSongsList = maimaiSongs.Children().ToList();
@@ -2426,6 +2516,7 @@
             osuLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
+
         private async Task SpotifyMatching(List<string> titles, List<string> artists)
         {
             Console.Clear();
@@ -2497,6 +2588,7 @@
             App.Current.MainWindow.Show();
             FreeConsole();
         }
+
         public string BeatSaberMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
@@ -2575,7 +2667,8 @@
             beatLinks.ForEach(s => sb.AppendLine(s));
             return sb.ToString();
         }
-        public string ChunithmMatching(List<string> titles, List<string> titlesUni, List<string> artists)
+
+        public string ChunithmMatching(List<string> titles, List<string> titlesUni, List<string> artists, bool international)
         {
             var json = string.Empty;
             var json2 = string.Empty;
@@ -2588,9 +2681,16 @@
             Console.WriteLine("Searching Chunithm songs... ");
             using (WebClient wc = new WebClient())
             {
-                json = wc.DownloadString("https://chunithm.sega.jp/data/common.json");
-                // only has 36 songs cant be bothered to write code for it /shrug 
-                // json2 = wc.DownloadString("https://chunithm.sega.jp/data/course.json");
+                if (international)
+                {
+                    json = wc.DownloadString("https://chunithm.sega.com/js/music/json/common.json");
+                }
+                else
+                {
+                    json = wc.DownloadString("https://chunithm.sega.jp/data/common.json");
+                    // only has 36 songs cant be bothered to write code for it /shrug 
+                    // json2 = wc.DownloadString("https://chunithm.sega.jp/data/course.json");
+                }
             }
             JArray chunithmSongs = JArray.Parse(json);
             IList<JToken> chunithmSongsList = chunithmSongs.Children().ToList();
@@ -2654,6 +2754,7 @@
             }
             return sb.ToString();
         }
+
         public string OngekiMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var json = string.Empty;
@@ -2730,6 +2831,7 @@
             }
             return sb.ToString();
         }
+
         public string DivaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var matches = new List<string>();
@@ -2782,6 +2884,7 @@
             }
             return sb.ToString();
         }
+
         public string ArcaeaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var matches = new List<string>();
@@ -2834,6 +2937,7 @@
             }
             return sb.ToString();
         }
+
         public string WaccaMatching(List<string> titles, List<string> titlesUni, List<string> artists)
         {
             var matches = new List<string>();
@@ -2897,6 +3001,7 @@
             }
             return sb.ToString();
         }
+
         public string QuaverMatching(List<string> titles, List<string> artists)
         {
             var json = string.Empty;
