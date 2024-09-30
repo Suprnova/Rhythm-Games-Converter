@@ -1,6 +1,8 @@
-<p align="center">
-  <img width="500px" src="https://cdn.discordapp.com/attachments/603730493074046978/754077808992714762/RGC.png">
-</p>
+> [!WARNING]
+> This software is one of my oldest projects, and it shows.
+>
+> This project is essentially abandoned, and no support will be provided attempting to run it on modern systems or fetch modern databases.
+> I wouldn't recommend using this repository for anything, you'd likely be better off creating your own equivalent project. Best of luck to you.
 
 # Rhythm Games Converter
 This tool is designed for you to find songs in your rhythm game's songs that is also in another rhythm game.
